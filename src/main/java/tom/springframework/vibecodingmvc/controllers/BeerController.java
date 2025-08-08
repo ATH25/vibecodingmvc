@@ -38,4 +38,27 @@ public class BeerController {
     public Beer createBeer(@RequestBody Beer beer) {
         return beerService.saveBeer(beer);
     }
+    
+    @PutMapping("/{beerId}")
+    public ResponseEntity<Beer> updateBeer(@PathVariable("beerId") Integer beerId, @RequestBody Beer beer) {
+        Beer updatedBeer = beerService.updateBeer(beerId, beer);
+        
+        if (updatedBeer != null) {
+            return new ResponseEntity<>(updatedBeer, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    @DeleteMapping("/{beerId}")
+    public ResponseEntity<Void> deleteBeer(@PathVariable("beerId") Integer beerId) {
+        Optional<Beer> beer = beerService.getBeerById(beerId);
+        
+        if (beer.isPresent()) {
+            beerService.deleteBeer(beerId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

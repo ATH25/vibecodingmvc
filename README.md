@@ -1,5 +1,3 @@
-
-
 # VibeCodingMVC 🎵🚀
 
 This is a Spring Boot project built for experimenting with "vibe coding" — a fun, focused, and creative approach to building modern Java applications. It uses Java 21 and Maven.
@@ -53,7 +51,7 @@ vibecodingmvc/
 - This project is part of a learning journey and will evolve over time.
 - Contributions welcome once the basics are in place!
 
-## 🤖 Junie Prompts
+## 🤖 Vibe Coding Prompts
 
 ### beer-controller-branch (branch name: 3-create-service-layer-and-controller)
 
@@ -64,3 +62,19 @@ Create Spring MockMVC tests for the controller operations. Verify tests are pass
 Finally, add a section in readme.md file for the Junie prompts I provided. Have a sub section for the branch and add the prompt under the sub section
 ```
 
+### controller-update-delete (branch name: 4-add-controller-endpoints)
+
+```
+Inspect the BeerController. Add API endpints for update and delete. Create new service methods. Create additional MockMVC tests for the new API operations. 
+Create a new unit test to test all service operations. 
+```
+
+#### ✅ Files Added
+- `src/test/java/tom/springframework/vibecodingmvc/services/BeerServiceTest.java`
+
+#### ✅ Files Modified
+- `README.md`
+- `BeerController.java`
+- `BeerService.java`
+- `BeerServiceImpl.java`
+- `BeerControllerTest.java`
