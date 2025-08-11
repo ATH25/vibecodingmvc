@@ -78,3 +78,13 @@ Create a new unit test to test all service operations.
 - `BeerService.java`
 - `BeerServiceImpl.java`
 - `BeerControllerTest.java`
+
+
+## Using Junie
+
+- New contributors: start with the project guidelines at [.junie/guidelines.md](.junie/guidelines.md) for structure, commands, and best practices.
+- To use Junie in IntelliJ IDEA, read the official guide: https://www.jetbrains.com/guide/ai/article/junie/intellij-idea/
+- When writing prompts for Junie:
+  - Be explicit about files, packages, and tests to create/modify.
+  - Keep changes minimal and scoped; follow Controller → Service → Repository layering.
+  - After changes, run `mvn test` and review diffs before committing.
