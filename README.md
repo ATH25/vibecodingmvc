@@ -1,55 +1,162 @@
 # VibeCodingMVC 🎵🚀
 
-This is a Spring Boot project built for experimenting with "vibe coding" — a fun, focused, and creative approach to building modern Java applications. It uses Java 21 and Maven.
+A Spring Boot 3 (3.5.4) project on Java 21 to experiment with “vibe coding” — building modern Java apps with focus, flow, and fun.
+
+Updated: 2025-08-11
 
 ## 🔧 Tech Stack
 
 - Java 21
-- Spring Boot
+- Spring Boot 3.5.x
+- Spring Web, Spring Data JPA, Validation
+- H2 (in-memory; auto-configured) for local/dev and tests
 - Maven
-- Git + GitHub
+
+## ✅ Prerequisites
+
+- JDK 21
+- Maven 3.9+
+
+Verify locally:
+- java -version
+- mvn -version
 
 ## 📁 Project Structure
 
 ```
 vibecodingmvc/
+├── pom.xml
+├── README.md
+├── HELP.md
+├── prompts/
+│   └── add-dtos/
+│       ├── prompts.md
+│       ├── requirements.md
+│       └── requirements-draft.md
 ├── src/
 │   ├── main/
 │   │   ├── java/
+│   │   │   └── tom/springframework/vibecodingmvc/
+│   │   │       ├── VibecodingmvcApplication.java
+│   │   │       ├── controllers/
+│   │   │       │   └── BeerController.java
+│   │   │       ├── entities/
+│   │   │       │   └── Beer.java
+│   │   │       ├── repositories/
+│   │   │       │   └── BeerRepository.java
+│   │   │       └── services/
+│   │   │           ├── BeerService.java
+│   │   │           └── BeerServiceImpl.java
 │   │   └── resources/
+│   │       └── application.properties
 │   └── test/
-├── .gitignore
-├── application.properties
-├── pom.xml
-└── README.md
+│       ├── java/
+│       │   └── tom/springframework/vibecodingmvc/
+│       │       ├── VibecodingmvcApplicationTests.java
+│       │       ├── controllers/BeerControllerTest.java
+│       │       ├── repositories/BeerRepositoryTest.java
+│       │       └── services/BeerServiceTest.java
+│       └── resources/
+│           └── application.properties
 ```
 
-## 🚀 Getting Started
+Layering: Controller → Service → Repository. Constructor injection is used across services and controllers.
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/ATH25/vibecodingmvc.git
-   cd vibecodingmvc
-   ```
+## 🚀 Run & Build
 
-2. Build and run the project:
-   ```bash
-   mvn spring-boot:run
-   ```
+- Dev run (auto-configured H2):
+  - mvn spring-boot:run
+- Package without tests:
+  - mvn -DskipTests package
+- Run packaged jar:
+  - java -jar target/*-SNAPSHOT.jar
 
-3. Start vibin' 🎧
+Default server port is 8080 (Spring Boot default). No external DB needed for local run; H2 in-memory will be auto-configured.
+
+## 🧪 Testing
+
+- All tests:
+  - mvn test
+- Single test class:
+  - mvn -Dtest=tom.springframework.vibecodingmvc.controllers.BeerControllerTest test
+- Single test method:
+  - mvn -Dtest=BeerControllerTest#listBeers_returnsOk test
+- Reports: target/surefire-reports
+
+Tests use MockMvc for controller and H2 (create-drop) for repository/data interactions.
+
+## 🍺 Beer API
+
+Base URL: /api/v1/beers
+
+Entity fields:
+- id, version (managed)
+- beerName, beerStyle, upc, quantityOnHand, price
+- createdDate, updatedDate (timestamps)
+
+Endpoints:
+- GET /api/v1/beers
+  - Description: List all beers
+  - 200 OK -> JSON array of beers
+  - curl: curl -s http://localhost:8080/api/v1/beers
+
+- GET /api/v1/beers/{beerId}
+  - Description: Get a beer by id
+  - 200 OK -> Beer JSON, or 404 if not found
+  - curl: curl -i http://localhost:8080/api/v1/beers/1
+
+- POST /api/v1/beers
+  - Description: Create a beer
+  - 201 Created -> created Beer JSON
+  - Body example:
+    {
+      "beerName": "Hoppy Trails",
+      "beerStyle": "IPA",
+      "upc": "123456789012",
+      "quantityOnHand": 100,
+      "price": 5.99
+    }
+  - curl:
+    curl -i -H "Content-Type: application/json" \
+      -d '{"beerName":"Hoppy Trails","beerStyle":"IPA","upc":"123456789012","quantityOnHand":100,"price":5.99}' \
+      http://localhost:8080/api/v1/beers
+
+- PUT /api/v1/beers/{beerId}
+  - Description: Update an existing beer (full replace of updatable fields)
+  - 200 OK with updated Beer JSON, or 404 if not found
+  - curl:
+    curl -i -X PUT -H "Content-Type: application/json" \
+      -d '{"beerName":"Hoppy Trails 2","beerStyle":"IPA","upc":"123456789012","quantityOnHand":90,"price":6.49}' \
+      http://localhost:8080/api/v1/beers/1
+
+- DELETE /api/v1/beers/{beerId}
+  - Description: Delete a beer
+  - 204 No Content on success, 404 if not found
+  - curl: curl -i -X DELETE http://localhost:8080/api/v1/beers/1
+
+Notes:
+- The current API returns the JPA entity directly. DTOs and validation are planned (see prompts below).
+- Errors return standard HTTP status codes (404 on missing resources).
 
 ## ✨ Project Goals
 
-- Explore Spring Boot's MVC capabilities
-- Learn advanced Java 21 features
-- Improve productivity with a vibe-first mindset
-- Build something fun, meaningful, and technically solid
+- Explore Spring Boot MVC
+- Practice Java 21 features
+- Keep changes small, layered, and test-backed
+- Build something fun and technically solid
 
-## 📌 Notes
+## 🤝 Contributing
 
-- This project is part of a learning journey and will evolve over time.
-- Contributions welcome once the basics are in place!
+- Branch naming: feature/<short>, fix/<ticket>, chore/<task>
+- Commits: small, imperative (e.g., "Add Beer update endpoint")
+- Before pushing: mvn test
+- Keep PRs focused; include tests where applicable
+
+## 📌 Operational Notes
+
+- DB: H2 in-memory for dev/tests; Flyway is present but no migrations yet.
+- OSIV: Consider setting spring.jpa.open-in-view=false in future.
+- Exception handling: Add a GlobalExceptionHandler when introducing DTOs/validation.
 
 ## 🤖 Vibe Coding Prompts
 
@@ -70,15 +177,21 @@ Create a new unit test to test all service operations.
 ```
 
 #### ✅ Files Added
-- `src/test/java/tom/springframework/vibecodingmvc/services/BeerServiceTest.java`
+- src/test/java/tom/springframework/vibecodingmvc/services/BeerServiceTest.java
 
 #### ✅ Files Modified
-- `README.md`
-- `BeerController.java`
-- `BeerService.java`
-- `BeerServiceImpl.java`
-- `BeerControllerTest.java`
+- README.md
+- BeerController.java
+- BeerService.java
+- BeerServiceImpl.java
+- BeerControllerTest.java
 
+### add-dtos (branch name: add-dtos)
+
+```
+Analyze the file `/prompts/add_dtos/requirements-draft.md` and inspect the project. Improve and rewrite the draft
+requirements to a new file called `/prompts/add-dtos/requirements.md`.
+```
 
 ## Using Junie
 
@@ -87,4 +200,4 @@ Create a new unit test to test all service operations.
 - When writing prompts for Junie:
   - Be explicit about files, packages, and tests to create/modify.
   - Keep changes minimal and scoped; follow Controller → Service → Repository layering.
-  - After changes, run `mvn test` and review diffs before committing.
+  - After changes, run mvn test and review diffs before committing.
