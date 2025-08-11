@@ -1,64 +1,59 @@
 package tom.springframework.vibecodingmvc.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tom.springframework.vibecodingmvc.entities.Beer;
+import tom.springframework.vibecodingmvc.models.BeerRequestDto;
+import tom.springframework.vibecodingmvc.models.BeerResponseDto;
 import tom.springframework.vibecodingmvc.services.BeerService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/beers")
-public class BeerController {
+class BeerController {
 
     private final BeerService beerService;
 
-    public BeerController(BeerService beerService) {
+    BeerController(BeerService beerService) {
         this.beerService = beerService;
     }
 
     @GetMapping
-    public List<Beer> listBeers() {
-        return beerService.listBeers();
+    ResponseEntity<List<BeerResponseDto>> listBeers() {
+        return ResponseEntity.ok(beerService.listBeers());
     }
 
     @GetMapping("/{beerId}")
-    public ResponseEntity<Beer> getBeerById(@PathVariable("beerId") Integer beerId) {
-        Optional<Beer> beerOptional = beerService.getBeerById(beerId);
-        
-        return beerOptional
-                .map(beer -> new ResponseEntity<>(beer, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    ResponseEntity<BeerResponseDto> getBeerById(@PathVariable("beerId") Integer beerId) {
+        return beerService.getBeerById(beerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Beer createBeer(@RequestBody Beer beer) {
-        return beerService.saveBeer(beer);
+    ResponseEntity<BeerResponseDto> createBeer(@Valid @RequestBody BeerRequestDto dto) {
+        BeerResponseDto created = beerService.saveBeer(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
-    
+
     @PutMapping("/{beerId}")
-    public ResponseEntity<Beer> updateBeer(@PathVariable("beerId") Integer beerId, @RequestBody Beer beer) {
-        Beer updatedBeer = beerService.updateBeer(beerId, beer);
-        
-        if (updatedBeer != null) {
-            return new ResponseEntity<>(updatedBeer, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    ResponseEntity<BeerResponseDto> updateBeer(@PathVariable("beerId") Integer beerId,
+                                               @Valid @RequestBody BeerRequestDto dto) {
+        return beerService.updateBeer(beerId, dto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
-    
+
     @DeleteMapping("/{beerId}")
-    public ResponseEntity<Void> deleteBeer(@PathVariable("beerId") Integer beerId) {
-        Optional<Beer> beer = beerService.getBeerById(beerId);
-        
-        if (beer.isPresent()) {
-            beerService.deleteBeer(beerId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    ResponseEntity<Void> deleteBeer(@PathVariable("beerId") Integer beerId) {
+        // Attempt deletion only if present
+        return beerService.getBeerById(beerId)
+                .map(b -> {
+                    beerService.deleteBeer(beerId);
+                    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+                })
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

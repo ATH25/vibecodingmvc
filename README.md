@@ -135,7 +135,7 @@ Endpoints:
   - curl: curl -i -X DELETE http://localhost:8080/api/v1/beers/1
 
 Notes:
-- The current API returns the JPA entity directly. DTOs and validation are planned (see prompts below).
+- The API now uses DTOs: BeerRequestDto for inputs and BeerResponseDto for outputs. Validation is applied on inputs (@NotBlank, @PositiveOrZero, @DecimalMin>0). Mapping is done via MapStruct.
 - Errors return standard HTTP status codes (404 on missing resources).
 
 ## ✨ Project Goals

@@ -6,36 +6,36 @@ Source plan: prompts/add-dtos/plan.md
 
 1. Phase 1 — Model and Mapper (no externally visible behavior change)
    1.1. Models package setup
-   - [ ] Create package `tom.springframework.vibecodingmvc.models`.
-   - [ ] Add BeerRequestDto (input only) with fields: beerName, beerStyle, upc, quantityOnHand, price.
-   - [ ] Add validation on BeerRequestDto: @NotBlank (beerName, beerStyle, upc), @PositiveOrZero (quantityOnHand), @DecimalMin(value = "0.0", inclusive = false) (price).
-   - [ ] Add BeerResponseDto (output) with fields: id, version, beerName, beerStyle, upc, quantityOnHand, price, createdDate, updatedDate.
+   - [x] Create package `tom.springframework.vibecodingmvc.models`.
+   - [x] Add BeerRequestDto (input only) with fields: beerName, beerStyle, upc, quantityOnHand, price.
+   - [x] Add validation on BeerRequestDto: @NotBlank (beerName, beerStyle, upc), @PositiveOrZero (quantityOnHand), @DecimalMin(value = "0.0", inclusive = false) (price).
+   - [x] Add BeerResponseDto (output) with fields: id, version, beerName, beerStyle, upc, quantityOnHand, price, createdDate, updatedDate.
 
    1.2. Mapper package and interface
-   - [ ] Create package `tom.springframework.vibecodingmvc.mappers`.
-   - [ ] Define `BeerMapper` (MapStruct, componentModel = "spring").
-   - [ ] Add `Beer toEntity(BeerRequestDto dto)`; ignore id, version, createdDate, updatedDate.
-   - [ ] Add `BeerResponseDto toResponseDto(Beer beer)`.
-   - [ ] Add `void updateEntityFromDto(BeerRequestDto dto, @MappingTarget Beer beer)`; ignore id, version, createdDate, updatedDate.
+   - [x] Create package `tom.springframework.vibecodingmvc.mappers`.
+   - [x] Define `BeerMapper` (MapStruct, componentModel = "spring").
+   - [x] Add `Beer toEntity(BeerRequestDto dto)`; ignore id, version, createdDate, updatedDate.
+   - [x] Add `BeerResponseDto toResponseDto(Beer beer)`.
+   - [x] Add `void updateEntityFromDto(BeerRequestDto dto, @MappingTarget Beer beer)`; ignore id, version, createdDate, updatedDate.
 
    1.3. Build verification
-   - [ ] Ensure MapStruct annotation processing is configured (via Maven/Boot parent) and perform a build to generate mapper implementations.
+   - [x] Ensure MapStruct annotation processing is configured (via Maven/Boot parent) and perform a build to generate mapper implementations.
 
 2. Phase 2 — Service Layer DTO Boundary
    2.1. API surface changes
-   - [ ] Update `BeerService` signatures to use DTOs:
-     - [ ] `List<BeerResponseDto> listBeers()`
-     - [ ] `Optional<BeerResponseDto> getBeerById(Integer id)`
-     - [ ] `BeerResponseDto saveBeer(BeerRequestDto dto)`
-     - [ ] `Optional<BeerResponseDto> updateBeer(Integer id, BeerRequestDto dto)`
-     - [ ] `void deleteBeer(Integer id)`
+   - [x] Update `BeerService` signatures to use DTOs:
+     - [x] `List<BeerResponseDto> listBeers()`
+     - [x] `Optional<BeerResponseDto> getBeerById(Integer id)`
+     - [x] `BeerResponseDto saveBeer(BeerRequestDto dto)`
+     - [x] `Optional<BeerResponseDto> updateBeer(Integer id, BeerRequestDto dto)`
+     - [x] `void deleteBeer(Integer id)`
 
    2.2. Implementation updates
-   - [ ] Inject `BeerRepository` and `BeerMapper` via constructor in `BeerServiceImpl`.
-   - [ ] Implement create: map request DTO -> entity, save, map saved entity -> response DTO.
-   - [ ] Implement update: find by id; if present apply `updateEntityFromDto`, save, map -> response DTO; else return `Optional.empty()`.
-   - [ ] Implement list/get: map entities to `BeerResponseDto`.
-   - [ ] Avoid returning null; use `Optional` as specified.
+   - [x] Inject `BeerRepository` and `BeerMapper` via constructor in `BeerServiceImpl`.
+   - [x] Implement create: map request DTO -> entity, save, map saved entity -> response DTO.
+   - [x] Implement update: find by id; if present apply `updateEntityFromDto`, save, map -> response DTO; else return `Optional.empty()`.
+   - [x] Implement list/get: map entities to `BeerResponseDto`.
+   - [x] Avoid returning null; use `Optional` as specified.
 
 3. Phase 3 — Controller Adaptation and Validation
    - [ ] Update `BeerController` to use DTOs exclusively and return explicit `ResponseEntity` statuses:
