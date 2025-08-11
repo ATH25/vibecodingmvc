@@ -2,6 +2,9 @@ package tom.springframework.vibecodingmvc.services;
 
 import org.springframework.stereotype.Service;
 import tom.springframework.vibecodingmvc.entities.Beer;
+import tom.springframework.vibecodingmvc.mappers.BeerMapper;
+import tom.springframework.vibecodingmvc.models.BeerRequestDto;
+import tom.springframework.vibecodingmvc.models.BeerResponseDto;
 import tom.springframework.vibecodingmvc.repositories.BeerRepository;
 
 import java.util.List;
@@ -11,36 +14,40 @@ import java.util.Optional;
 public class BeerServiceImpl implements BeerService {
     
     private final BeerRepository beerRepository;
+    private final BeerMapper beerMapper;
 
-    public BeerServiceImpl(BeerRepository beerRepository) {
+    public BeerServiceImpl(BeerRepository beerRepository, BeerMapper beerMapper) {
         this.beerRepository = beerRepository;
+        this.beerMapper = beerMapper;
     }
 
     @Override
-    public List<Beer> listBeers() {
-        return beerRepository.findAll();
+    public List<BeerResponseDto> listBeers() {
+        return beerRepository.findAll().stream()
+                .map(beerMapper::toResponseDto)
+                .toList();
     }
 
     @Override
-    public Optional<Beer> getBeerById(Integer id) {
-        return beerRepository.findById(id);
+    public Optional<BeerResponseDto> getBeerById(Integer id) {
+        return beerRepository.findById(id).map(beerMapper::toResponseDto);
     }
 
     @Override
-    public Beer saveBeer(Beer beer) {
-        return beerRepository.save(beer);
+    public BeerResponseDto saveBeer(BeerRequestDto dto) {
+        Beer toSave = beerMapper.toEntity(dto);
+        Beer saved = beerRepository.save(toSave);
+        return beerMapper.toResponseDto(saved);
     }
 
     @Override
-    public Beer updateBeer(Integer id, Beer beer) {
-        Optional<Beer> existingBeer = beerRepository.findById(id);
-        
-        if (existingBeer.isPresent()) {
-            beer.setId(id);
-            return beerRepository.save(beer);
-        }
-        
-        return null;
+    public Optional<BeerResponseDto> updateBeer(Integer id, BeerRequestDto dto) {
+        return beerRepository.findById(id)
+                .map(existing -> {
+                    beerMapper.updateEntityFromDto(dto, existing);
+                    Beer saved = beerRepository.save(existing);
+                    return beerMapper.toResponseDto(saved);
+                });
     }
 
     @Override
