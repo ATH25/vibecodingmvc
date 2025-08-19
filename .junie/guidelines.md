@@ -242,3 +242,19 @@ logger.atDebug()
 * **Multiple outputs and formats:** Direct logs to consoles, rolling files, databases, or remote systems, and choose formats like JSON for seamless ingestion into ELK, Loki, or other log-analysis tools.
 
 * **Better tooling and analysis:** Structured logs and controlled log levels make it easier to filter noise, automate alerts, and visualize application behavior in real time.
+
+## 15. Flyway database migrations
+* Spring Boot auto-detects Flyway on the classpath and runs migrations on startup before JPA/Hibernate initializes.
+* Default location for SQL migrations: `classpath:db/migration` (i.e., `src/main/resources/db/migration`).
+* Versioned migrations: files named like `V1__init.sql`, `V2__add_beer_table.sql`.
+  - Pattern: `V` + version + `__` + description + `.sql` (double underscore between version and description).
+* Repeatable migrations: files named like `R__refresh_views.sql`.
+  - Pattern: `R` + `__` + description + `.sql` (re-run when contents change).
+* Minimal configuration (optional) in `application.properties`:
+
+```properties
+# Flyway is auto-enabled when on the classpath
+spring.flyway.locations=classpath:db/migration
+# Prefer schema managed by migrations; validate entity DDL against schema
+spring.jpa.hibernate.ddl-auto=validate
+```
