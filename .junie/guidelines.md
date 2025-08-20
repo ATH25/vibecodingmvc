@@ -258,3 +258,40 @@ spring.flyway.locations=classpath:db/migration
 # Prefer schema managed by migrations; validate entity DDL against schema
 spring.jpa.hibernate.ddl-auto=validate
 ```
+
+## OpenAPI documentation (Redocly)
+
+Location
+- Root spec: openapi-starter-main/openapi/openapi.yaml
+- Split files are referenced via $ref to keep the spec modular and readable.
+
+Path files and naming
+- Each path item can be moved to its own file under openapi-starter-main/openapi/paths and referenced from openapi.yaml with:
+  
+  Example mappings from this repo:
+  - '/users/{username}' -> paths/users_{username}.yaml
+  - '/user' -> paths/user.yaml
+  - '/user/list' -> paths/user-status.yaml
+  - '/echo' -> paths/echo.yaml
+- Convention: prefer mirroring the URL by replacing '/' with '_' and keeping path parameters in curly braces, e.g. '/orders/{id}' -> paths/orders_{id}.yaml.
+- Descriptive alternatives are allowed (like user-status.yaml) as long as the openapi.yaml $ref points to the correct file.
+
+Components and references
+- Common parts live under openapi-starter-main/openapi/components:
+  - Schemas: components/schemas/*.yaml (e.g., User.yaml, Email.yaml, Problem.yaml)
+  - Responses: components/responses/*.yaml (e.g., Problem.yaml referencing schemas/Problem.yaml)
+  - Headers: components/headers/*.yaml (e.g., ExpiresAfter.yaml)
+  - Security schemes are defined inline under components.securitySchemes in openapi.yaml.
+- Use relative $ref paths from the referencing file, for example:
+  - From a path file: $ref: '../components/schemas/User.yaml'
+  - From the root openapi.yaml: $ref: 'components/schemas/User.yaml'
+
+Previewing docs
+- A simple static docs page exists at openapi-starter-main/docs/index.html (uses the bundled spec or points to the live one).
+- You can also use Redocly preview in the OpenAPI project directory: npm start
+
+Validate/test the OpenAPI definition
+- Prerequisite: Node.js installed. In openapi-starter-main run once: npm install
+- Lint/validate: npm test
+  - This runs redocly lint using the script defined in openapi-starter-main/package.json.
+- Optional: bundle the spec for distribution: npm run build (outputs dist/bundle.yaml)

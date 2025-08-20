@@ -21,12 +21,3 @@ Write the task list to `prompts/create-beer-order/tasks.md` file.
 Complete the task list `prompts/create-beer-order/tasks.md`. Inspect the requirements.md and plan.md and task.md (task list). 
 Implement the tasks in the task list. Focus on completing the tasks in order. Mark the task complete as it is done 
 using [x]. As each step is completed, it is very important to update the task list mark and the task as done [x]. 
-
-------------------------------------------------------------------------
-------------------------------------------------------------------------
-Inspect .junie/guidelines.md. Add a brief section about flyway migrations with Spring Boot. Include information about the default directory and version naming. 
-
-----------------
-----------------
-
-Create flyway migration scripts for the JPA entities in this project. Use one script starting with the lowest version number. Inspect and update the application.properties to enable flyway migrations with Spring Boot. 
