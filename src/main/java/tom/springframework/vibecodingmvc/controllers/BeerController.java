@@ -10,8 +10,19 @@ import tom.springframework.vibecodingmvc.services.BeerService;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/beers")
+@Tag(name = "Beers", description = "Operations for managing beers in the catalog")
 class BeerController {
 
     private final BeerService beerService;
@@ -21,33 +32,92 @@ class BeerController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "List beers",
+            description = "Returns all beers available in the catalog."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of beers returned",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = BeerResponseDto.class)),
+                            examples = @ExampleObject(name = "BeersExample", value = "[\n  {\n    \"id\": 1,\n    \"version\": 0,\n    \"beerName\": \"Galaxy Cat IPA\",\n    \"beerStyle\": \"IPA\",\n    \"upc\": \"0123456789012\",\n    \"quantityOnHand\": 120,\n    \"price\": 12.99,\n    \"createdDate\": \"2025-08-01T12:34:56\",\n    \"updatedDate\": \"2025-08-15T09:00:00\"\n  }\n]"))
+            )
+    })
     ResponseEntity<List<BeerResponseDto>> listBeers() {
         return ResponseEntity.ok(beerService.listBeers());
     }
 
     @GetMapping("/{beerId}")
-    ResponseEntity<BeerResponseDto> getBeerById(@PathVariable("beerId") Integer beerId) {
+    @Operation(
+            summary = "Get beer by id",
+            description = "Returns the beer with the given id if it exists."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Beer found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BeerResponseDto.class),
+                            examples = @ExampleObject(name = "BeerExample", value = "{\n  \"id\": 42,\n  \"version\": 1,\n  \"beerName\": \"Pale Rider\",\n  \"beerStyle\": \"PALE_ALE\",\n  \"upc\": \"0987654321098\",\n  \"quantityOnHand\": 64,\n  \"price\": 9.49,\n  \"createdDate\": \"2025-07-20T10:15:30\",\n  \"updatedDate\": \"2025-08-10T08:00:00\"\n}"))
+            ),
+            @ApiResponse(responseCode = "404", description = "Beer not found", content = @Content)
+    })
+    ResponseEntity<BeerResponseDto> getBeerById(
+            @Parameter(description = "Unique identifier of the beer", example = "42")
+            @PathVariable("beerId") Integer beerId) {
         return beerService.getBeerById(beerId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping
-    ResponseEntity<BeerResponseDto> createBeer(@Valid @RequestBody BeerRequestDto dto) {
+    @Operation(
+            summary = "Create a beer",
+            description = "Creates a new beer and returns the created resource."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Beer created",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BeerResponseDto.class))) ,
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
+    ResponseEntity<BeerResponseDto> createBeer(
+            @Valid @RequestBody BeerRequestDto dto) {
         BeerResponseDto created = beerService.saveBeer(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{beerId}")
-    ResponseEntity<BeerResponseDto> updateBeer(@PathVariable("beerId") Integer beerId,
-                                               @Valid @RequestBody BeerRequestDto dto) {
+    @Operation(
+            summary = "Update a beer",
+            description = "Updates an existing beer by id."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Beer updated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BeerResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "404", description = "Beer not found", content = @Content)
+    })
+    ResponseEntity<BeerResponseDto> updateBeer(
+            @Parameter(description = "Unique identifier of the beer", example = "1")
+            @PathVariable("beerId") Integer beerId,
+            @Valid @RequestBody BeerRequestDto dto) {
         return beerService.updateBeer(beerId, dto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{beerId}")
-    ResponseEntity<Void> deleteBeer(@PathVariable("beerId") Integer beerId) {
+    @Operation(
+            summary = "Delete a beer",
+            description = "Deletes a beer by id. Returns 204 if deleted, 404 if not found."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Beer deleted"),
+        @ApiResponse(responseCode = "404", description = "Beer not found")
+    })
+    ResponseEntity<Void> deleteBeer(
+            @Parameter(description = "Unique identifier of the beer", example = "1")
+            @PathVariable("beerId") Integer beerId) {
         // Attempt deletion only if present
         return beerService.getBeerById(beerId)
                 .map(b -> {
