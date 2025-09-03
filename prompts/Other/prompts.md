@@ -19,3 +19,46 @@ Inspect OpenAPI specification in openapi-starter-main/openapi/openapi.yaml. This
 Branch 18:
 
 Inspect the Spring MVC controller BeerController and comments on the DTOs accepted and returned. Update the OpenAPI specification for the operations in the BeerController. Provide constraint information, descriptions and examples in the schema object.
+
+
+-------------
+
+Branch 18:
+
+Check pom.xml. If not present, add org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0. Do not change other dependencies. After the build, confirm that /v3/api-docs and /swagger-ui.html are available.
+
+-------------
+
+Branch 18:
+
+Add Springdoc OpenAPI annotations to BeerController and Beer DTOs without changing logic or signatures.
+- Controller: annotate class with @Tag. For each handler method add @Operation (summary, description) and @ApiResponses with proper status codes. Include request/response examples when helpful. Keep return types unchanged and do not alter routes or business logic.
+- DTOs: add @Schema to each record field with description, example, and constraints that mirror Jakarta Validation annotations (@NotBlank, @PositiveOrZero, @DecimalMin, etc.). Use type string with format "date-time" for LocalDateTime fields.
+- Use realistic examples consistent with fields: beerName, beerStyle, upc (13-digit), quantityOnHand, price, id/version, createdDate/updatedDate.
+
+Note: Imports should come from io.swagger.v3.oas.annotations.*. Ensure the project still compiles and existing tests pass.
+
+
+-------------
+
+Inspect tom.springframework.vibecodingmvc.controllers.BeerController and the DTOs BeerRequestDto and BeerResponseDto.
+
+A) Controller annotations (verify/complete only; do not duplicate or change logic/signatures):
+	•	Ensure presence of @Tag, @Operation (summary/description), and @ApiResponses with correct status codes and examples.
+
+B) DTO annotations (only where missing; do not modify fields):
+	•	Add @Schema with field descriptions, examples, and constraints mapped from Jakarta Validation (e.g., @NotBlank, @Positive, etc.).
+
+C) Examples in responses:
+	•	Keep curated examples for 200 responses (single and list).
+	•	No examples for 404/415 (empty content).
+
+D) Non-goals:
+	•	Do not change method signatures, path mappings, or service calls.
+	•	Do not alter business logic.
+
+E) When finished:
+	•	Append this full prompt as a new entry at the bottom of /prompts/Other/prompts.md (do not modify prior entries).
+	•	Report which files were updated.
+</issue_description>
+If you need to know the date and time for this issue, the current local date and time is: 2025-09-01 17:46.
