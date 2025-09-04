@@ -11,9 +11,20 @@ import tom.springframework.vibecodingmvc.services.BeerOrderService;
 
 import java.net.URI;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
-@RequestMapping("/api/v1/beer-orders")
+@RequestMapping(value = "/api/v1/beer-orders")
 @Validated
+@Tag(name = "Beer Orders", description = "Operations for creating and retrieving beer orders")
 class BeerOrderController {
 
     private final BeerOrderService beerOrderService;
@@ -22,7 +33,21 @@ class BeerOrderController {
         this.beerOrderService = beerOrderService;
     }
 
-    @PostMapping
+    @PostMapping(consumes = "application/json", produces = "application/json")
+    @Operation(
+            summary = "Create a beer order",
+            description = "Creates a new beer order and returns the created resource. The Location header contains the URI of the created order.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Created",
+                    headers = {@Header(name = "Location", description = "URI of the created beer order")},
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BeerOrderResponse.class),
+                            examples = @ExampleObject(name = "created",
+                                    value = "{\n  \"id\": 42,\n  \"customerRef\": \"PO-2025-0001\",\n  \"paymentAmount\": 24.99,\n  \"status\": \"PENDING\",\n  \"lines\": [\n    {\n      \"id\": 10,\n      \"beerId\": 1,\n      \"beerName\": \"Galaxy Cat IPA\",\n      \"orderQuantity\": 2,\n      \"quantityAllocated\": 0,\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"createdDate\": \"2025-08-20T14:13:00Z\",\n  \"updatedDate\": \"2025-08-20T14:13:00Z\"\n}"))
+            ),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+            @ApiResponse(responseCode = "415", description = "Unsupported Media Type", content = @Content)
+    })
     ResponseEntity<BeerOrderResponse> create(@Valid @RequestBody CreateBeerOrderCommand cmd,
                                              UriComponentsBuilder uriBuilder) {
         int id = beerOrderService.createOrder(cmd);
@@ -32,8 +57,20 @@ class BeerOrderController {
                 .orElseGet(() -> ResponseEntity.created(location).build());
     }
 
-    @GetMapping("/{id}")
-    ResponseEntity<BeerOrderResponse> get(@PathVariable Integer id) {
+    @GetMapping(value = "/{id}", produces = "application/json")
+    @Operation(summary = "Get beer order by id", description = "Retrieves a beer order by its identifier.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BeerOrderResponse.class),
+                            examples = @ExampleObject(name = "example",
+                                    value = "{\n  \"id\": 42,\n  \"customerRef\": \"PO-2025-0001\",\n  \"paymentAmount\": 24.99,\n  \"status\": \"PENDING\",\n  \"lines\": [\n    {\n      \"id\": 10,\n      \"beerId\": 1,\n      \"beerName\": \"Galaxy Cat IPA\",\n      \"orderQuantity\": 2,\n      \"quantityAllocated\": 0,\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"createdDate\": \"2025-08-20T14:13:00Z\",\n  \"updatedDate\": \"2025-08-20T14:13:00Z\"\n}"))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
+    })
+    ResponseEntity<BeerOrderResponse> get(
+            @Parameter(description = "ID of the beer order", example = "42")
+            @PathVariable Integer id) {
         return beerOrderService.getOrder(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
