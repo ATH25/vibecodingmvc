@@ -62,3 +62,7 @@ E) When finished:
 	•	Report which files were updated.
 </issue_description>
 If you need to know the date and time for this issue, the current local date and time is: 2025-09-01 17:46.
+
+-----------------------------
+Inspect /prompts/Other/document-beerOrder-APIs.md file and use the instructions in it to build Beer Order documentation using
+Springdoc annotations.
