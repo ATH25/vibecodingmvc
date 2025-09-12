@@ -1,0 +1,27 @@
+type: object
+description: Request payload to create or update a beer
+required: [beerName, beerStyle, upc]
+properties:
+  beerName:
+    type: string
+    description: Name of the beer
+    example: Galaxy Cat IPA
+  beerStyle:
+    type: string
+    description: 'Style of the beer (e.g., ALE, PALE_ALE, IPA)'
+    example: IPA
+  upc:
+    type: string
+    description: Universal Product Code (13-digit)
+    example: '0123456789012'
+  quantityOnHand:
+    type: integer
+    format: int32
+    minimum: 0
+    description: Quantity on hand (must be zero or positive)
+    example: 120
+  price:
+    type: number
+    description: Price per unit (must be greater than 0)
+    minimum: 0.01
+    example: 12.99

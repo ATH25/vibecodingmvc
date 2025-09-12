@@ -1,0 +1,40 @@
+type: object
+description: Beer order details
+properties:
+  id:
+    type: integer
+    format: int32
+    description: Order identifier
+    example: 42
+  customerRef:
+    type: string
+    description: Client-provided reference for the order
+    example: PO-2025-0001
+  paymentAmount:
+    type: number
+    description: Payment amount
+    example: 24.99
+  status:
+    type: string
+    description: Current status of the order
+    example: PENDING
+    enum: [PENDING, PAID, CANCELLED]
+  lines:
+    type: array
+    items:
+      $ref: ./BeerOrderLineResponse.yaml
+    example:
+      - id: 10
+        beerId: 1
+        beerName: Galaxy Cat IPA
+        orderQuantity: 2
+        quantityAllocated: 0
+        status: PENDING
+  createdDate:
+    type: string
+    format: date-time
+    example: '2025-08-20T14:13:00Z'
+  updatedDate:
+    type: string
+    format: date-time
+    example: '2025-08-20T14:13:00Z'

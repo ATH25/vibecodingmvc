@@ -66,3 +66,43 @@ If you need to know the date and time for this issue, the current local date and
 -----------------------------
 Inspect /prompts/Other/document-beerOrder-APIs.md file and use the instructions in it to build Beer Order documentation using
 Springdoc annotations.
+
+-----------------------------
+We need to clean up our Redocly OpenAPI repo and switch it to split structure (“By split structure, I mean openapi.yaml is the root with only metadata and $refs, all operations live in paths/*.yaml, and all DTOs live in components/schemas/*.yaml.”)
+
+Take the attached Springdoc export (`/v3/api-docs.yaml`) as the single source of truth.
+
+Create (or overwrite if it exists) the file `/prompts/Other/cleanup-openapi-tasks.md`.  
+In that file, write a detailed, step-by-step task list for cleaning up `openapi-starter-main/openapi/openapi.yaml` and related split files:
+- Remove demo/example paths and schemas.
+- Add only the real endpoints and DTOs from the Springdoc YAML.
+- Organize them into split `paths/*.yaml` and `components/schemas/*.yaml` files.
+- Ensure tags, examples, constraints, and 404/204 responses (no body) are preserved.
+- Include acceptance checks (linting, Redocly preview, etc.).
+- Document which files to delete, create, or update.
+
+“Acceptance checks must include npx @redocly/cli lint openapi.yaml (no errors) and npx @redocly/cli preview-docs openapi.yaml (renders all endpoints).”
+
+Do not modify any Java code. Only focus on documentation artifacts.
+(Attach the file '/v3/api-docs.yaml')
+-------------------------------
+
+Use the checklist in /prompts/Other/cleanup-openapi-tasks.md to clean up and split the Redocly OpenAPI repo.
+
+Scope:
+- Docs only. Do NOT modify any Java code.
+
+
+Do:
+1) Apply all steps in cleanup-openapi-tasks.md (remove demo files, create split paths/*.yaml and components/schemas/*.yaml, refactor root openapi.yaml to metadata + $refs).
+2) Preserve examples, constraints, enums; keep 404/204 without bodies; standardize 400 as description-only unless the Springdoc export includes a body.
+3) Wire all $refs correctly.
+
+Validate:
+- Run `npx @redocly/cli lint openapi-starter-main/openapi/openapi.yaml` (must pass).
+- Run `npx @redocly/cli preview-docs openapi-starter-main/openapi/openapi.yaml` (should render all endpoints).
+
+Deliver:
+- List files created/updated/deleted.
+- Brief diff summary of key changes.
+- Commit with message: "docs(openapi): clean split spec from Springdoc (Option B)".

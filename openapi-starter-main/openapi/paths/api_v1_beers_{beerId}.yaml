@@ -1,0 +1,76 @@
+get:
+  tags: [Beers]
+  summary: Get beer by id
+  description: Returns the beer with the given id if it exists.
+  operationId: getBeerById
+  parameters:
+    - name: beerId
+      in: path
+      description: Unique identifier of the beer
+      required: true
+      schema: { type: integer, format: int32 }
+      example: 42
+  responses:
+    '200':
+      description: Beer found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BeerResponseDto.yaml
+          examples:
+            BeerExample:
+              description: BeerExample
+              value:
+                id: 42
+                version: 1
+                beerName: Pale Rider
+                beerStyle: PALE_ALE
+                upc: '0987654321098'
+                quantityOnHand: 64
+                price: 9.49
+                createdDate: '2025-07-20T10:15:30'
+                updatedDate: '2025-08-10T08:00:00'
+    '404':
+      description: Beer not found
+put:
+  tags: [Beers]
+  summary: Update a beer
+  description: Updates an existing beer by id.
+  operationId: updateBeer
+  parameters:
+    - name: beerId
+      in: path
+      description: Unique identifier of the beer
+      required: true
+      schema: { type: integer, format: int32 }
+      example: 1
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/BeerRequestDto.yaml
+  responses:
+    '400': { description: Validation error }
+    '404': { description: Beer not found }
+    '200':
+      description: Beer updated
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BeerResponseDto.yaml
+delete:
+  tags: [Beers]
+  summary: Delete a beer
+  description: Deletes a beer by id. Returns 204 if deleted, 404 if not found.
+  operationId: deleteBeer
+  parameters:
+    - name: beerId
+      in: path
+      description: Unique identifier of the beer
+      required: true
+      schema: { type: integer, format: int32 }
+      example: 1
+  responses:
+    '404': { description: Beer not found }
+    '204': { description: Beer deleted }

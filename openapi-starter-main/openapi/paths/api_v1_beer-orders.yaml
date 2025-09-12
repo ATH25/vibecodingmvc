@@ -1,0 +1,41 @@
+post:
+  tags: [Beer Orders]
+  summary: Create a beer order
+  description: Creates a new beer order and returns the created resource. The Location header contains the URI of the created order.
+  operationId: create
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/CreateBeerOrderCommand.yaml
+  responses:
+    '400': { description: Bad Request }
+    '201':
+      description: Created
+      headers:
+        Location:
+          description: URI of the created beer order
+          schema: { type: string }
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BeerOrderResponse.yaml
+          examples:
+            created:
+              description: created
+              value:
+                id: 42
+                customerRef: PO-2025-0001
+                paymentAmount: 24.99
+                status: PENDING
+                lines:
+                  - id: 10
+                    beerId: 1
+                    beerName: Galaxy Cat IPA
+                    orderQuantity: 2
+                    quantityAllocated: 0
+                    status: PENDING
+                createdDate: '2025-08-20T14:13:00Z'
+                updatedDate: '2025-08-20T14:13:00Z'
+    '415': { description: Unsupported Media Type }

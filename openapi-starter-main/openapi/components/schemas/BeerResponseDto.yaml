@@ -1,0 +1,45 @@
+type: object
+description: Response payload representing a beer
+properties:
+  id:
+    type: integer
+    format: int32
+    description: Unique identifier of the beer
+    example: 1
+  version:
+    type: integer
+    format: int32
+    minimum: 0
+    description: Entity version for optimistic locking
+    example: 0
+  beerName:
+    type: string
+    description: Name of the beer
+    example: Galaxy Cat IPA
+  beerStyle:
+    type: string
+    description: 'Style of the beer (e.g., ALE, PALE_ALE, IPA)'
+    example: IPA
+  upc:
+    type: string
+    description: Universal Product Code (13-digit)
+    example: '0123456789012'
+  quantityOnHand:
+    type: integer
+    format: int32
+    minimum: 0
+    description: Quantity on hand
+    example: 120
+  price:
+    type: number
+    minimum: 0.01
+    description: Price per unit
+    example: 12.99
+  createdDate:
+    type: string
+    format: date-time
+    description: Creation timestamp
+  updatedDate:
+    type: string
+    format: date-time
+    description: Last update timestamp

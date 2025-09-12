@@ -1,0 +1,19 @@
+type: object
+description: Command to create a beer order
+required: [items, paymentAmount]
+properties:
+  customerRef:
+    type: string
+    description: Client-provided reference for the order
+    example: PO-2025-0001
+  paymentAmount:
+    type: number
+    minimum: 0
+    description: Payment amount for the order
+    example: 24.99
+  items:
+    type: array
+    description: Order items
+    minItems: 1
+    items:
+      $ref: ./CreateBeerOrderItem.yaml
