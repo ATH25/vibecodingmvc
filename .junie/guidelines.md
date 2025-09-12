@@ -295,3 +295,19 @@ Validate/test the OpenAPI definition
 - Lint/validate: npm test
   - This runs redocly lint using the script defined in openapi-starter-main/package.json.
 - Optional: bundle the spec for distribution: npm run build (outputs dist/bundle.yaml)
+
+
+## Flyway database migrations (Spring Boot)
+- Default locations: classpath:db/migration (i.e., src/main/resources/db/migration)
+- Versioned migrations: V<version>__<description>.sql (double underscore). Example: V1__init.sql
+- Repeatable migrations: R__<description>.sql. Example: R__refresh_views.sql
+- Typical properties:
+  - spring.flyway.enabled=true
+  - spring.flyway.locations=classpath:db/migration
+  - spring.jpa.hibernate.ddl-auto=validate (prefer Flyway to manage schema)
+
+## OpenAPI documentation (Redocly split structure)
+- Root spec: openapi-starter-main/openapi/openapi.yaml contains only metadata (openapi, info, servers, tags) and $refs to split files.
+- Paths live in openapi-starter-main/openapi/paths/*.yaml. File name mirrors URL by replacing '/' with '_' and keeping parameters in braces, e.g. /api/v1/beers/{beerId} -> paths/api_v1_beers_{beerId}.yaml
+- Schemas live in openapi-starter-main/openapi/components/schemas/*.yaml, one schema per file, e.g. components/schemas/BeerResponseDto.yaml
+- Validate/lint: in openapi-starter-main run npm install once, then npm test (runs Redocly lint). Optional: npm start to preview docs.

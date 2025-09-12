@@ -1,0 +1,34 @@
+type: object
+description: Beer order line details
+properties:
+  id:
+    type: integer
+    format: int32
+    description: Line identifier
+    example: 10
+  beerId:
+    type: integer
+    format: int32
+    description: Beer identifier
+    example: 1
+  beerName:
+    type: string
+    description: Name of the beer
+    example: Galaxy Cat IPA
+  orderQuantity:
+    type: integer
+    format: int32
+    minimum: 1
+    description: Quantity ordered
+    example: 2
+  quantityAllocated:
+    type: integer
+    format: int32
+    minimum: 0
+    description: Quantity allocated
+    example: 0
+  status:
+    type: string
+    description: Line status
+    example: PENDING
+    enum: [PENDING, ALLOCATED, BACKORDERED, SHIPPED]

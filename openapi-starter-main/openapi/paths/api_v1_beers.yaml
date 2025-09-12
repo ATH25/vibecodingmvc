@@ -1,0 +1,49 @@
+get:
+  tags: [Beers]
+  summary: List beers
+  description: Returns all beers available in the catalog.
+  operationId: listBeers
+  responses:
+    '200':
+      description: List of beers returned
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/BeerResponseDto.yaml
+          examples:
+            BeersExample:
+              description: BeersExample
+              value:
+                - id: 1
+                  version: 0
+                  beerName: Galaxy Cat IPA
+                  beerStyle: IPA
+                  upc: '0123456789012'
+                  quantityOnHand: 120
+                  price: 12.99
+                  createdDate: '2025-08-01T12:34:56'
+                  updatedDate: '2025-08-15T09:00:00'
+    '400':
+      description: Bad Request
+post:
+  tags: [Beers]
+  summary: Create a beer
+  description: Creates a new beer and returns the created resource.
+  operationId: createBeer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/BeerRequestDto.yaml
+  responses:
+    '400':
+      description: Validation error
+    '201':
+      description: Beer created
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BeerResponseDto.yaml

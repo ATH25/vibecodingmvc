@@ -1,0 +1,37 @@
+get:
+  tags: [Beer Orders]
+  summary: Get beer order by id
+  description: Retrieves a beer order by its identifier.
+  operationId: get
+  parameters:
+    - name: id
+      in: path
+      description: ID of the beer order
+      required: true
+      schema: { type: integer, format: int32 }
+      example: 42
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BeerOrderResponse.yaml
+          examples:
+            example:
+              description: example
+              value:
+                id: 42
+                customerRef: PO-2025-0001
+                paymentAmount: 24.99
+                status: PENDING
+                lines:
+                  - id: 10
+                    beerId: 1
+                    beerName: Galaxy Cat IPA
+                    orderQuantity: 2
+                    quantityAllocated: 0
+                    status: PENDING
+                createdDate: '2025-08-20T14:13:00Z'
+                updatedDate: '2025-08-20T14:13:00Z'
+    '404': { description: Not Found }
