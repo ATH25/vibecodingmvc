@@ -1,0 +1,48 @@
+type: object
+description: Request payload to create or update a customer
+properties:
+  name:
+    type: string
+    maxLength: 120
+    description: Full name of the customer
+    example: Jane Doe
+  email:
+    type: string
+    format: email
+    maxLength: 255
+    description: Unique email address of the customer
+    example: jane.doe@example.com
+  phone:
+    type: string
+    maxLength: 40
+    description: Phone number
+    example: "+1-555-123-4567"
+  addressLine1:
+    type: string
+    maxLength: 200
+    description: Address line 1
+    example: 123 Main St
+  addressLine2:
+    type: string
+    maxLength: 200
+    description: Address line 2
+    example: Apt 4B
+  city:
+    type: string
+    maxLength: 120
+    description: City
+    example: Springfield
+  state:
+    type: string
+    maxLength: 80
+    description: State or province
+    example: IL
+  postalCode:
+    type: string
+    maxLength: 20
+    description: Postal/ZIP code
+    example: 62704
+required:
+  - name
+  - email
+  - addressLine1

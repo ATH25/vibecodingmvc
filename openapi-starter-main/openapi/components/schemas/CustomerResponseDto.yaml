@@ -1,0 +1,64 @@
+type: object
+description: Response payload representing a customer
+properties:
+  id:
+    type: integer
+    format: int32
+    description: Unique identifier of the customer
+    example: 1
+  version:
+    type: integer
+    format: int32
+    description: Entity version for optimistic locking
+    example: 0
+  name:
+    type: string
+    description: Full name of the customer
+    example: Jane Doe
+  email:
+    type: string
+    format: email
+    description: Unique email address of the customer
+    example: jane.doe@example.com
+  phone:
+    type: string
+    description: Phone number
+    example: "+1-555-123-4567"
+  addressLine1:
+    type: string
+    description: Address line 1
+    example: 123 Main St
+  addressLine2:
+    type: string
+    description: Address line 2
+    example: Apt 4B
+  city:
+    type: string
+    description: City
+    example: Springfield
+  state:
+    type: string
+    description: State or province
+    example: IL
+  postalCode:
+    type: string
+    description: Postal/ZIP code
+    example: 62704
+  createdDate:
+    type: string
+    format: date-time
+    description: Creation timestamp
+    example: 2025-08-01T12:34:56
+  updatedDate:
+    type: string
+    format: date-time
+    description: Last update timestamp
+    example: 2025-08-15T09:00:00
+required:
+  - id
+  - version
+  - name
+  - email
+  - addressLine1
+  - createdDate
+  - updatedDate

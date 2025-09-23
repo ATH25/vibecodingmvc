@@ -1,0 +1,67 @@
+get:
+  tags:
+    - Customers
+  summary: Get customer by id
+  description: Returns the customer with the given id if it exists.
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Unique identifier of the customer
+  responses:
+    '200':
+      description: Customer found
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/CustomerResponseDto.yaml'
+    '404':
+      description: Customer not found
+put:
+  tags:
+    - Customers
+  summary: Update customer
+  description: Updates an existing customer by id.
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Unique identifier of the customer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/schemas/CustomerRequestDto.yaml'
+  responses:
+    '200':
+      description: Customer updated
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/CustomerResponseDto.yaml'
+    '400':
+      description: Validation error
+    '404':
+      description: Customer not found
+delete:
+  tags:
+    - Customers
+  summary: Delete customer
+  description: Deletes a customer by id. Returns 204 if deleted, 404 if not found.
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Unique identifier of the customer
+  responses:
+    '204':
+      description: Customer deleted
+    '404':
+      description: Customer not found
