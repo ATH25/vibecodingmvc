@@ -29,6 +29,8 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- For Mockito inline on JDK 22+, we may need to pre-attach ByteBuddy agent -->
+        <bytebuddy.version>1.15.10</bytebuddy.version>
     </properties>
 
     <dependencies>

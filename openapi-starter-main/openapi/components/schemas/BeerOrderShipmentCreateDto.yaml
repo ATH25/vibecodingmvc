@@ -1,0 +1,36 @@
+type: object
+description: Create beer order shipment request
+properties:
+  beerOrderId:
+    type: integer
+    format: int32
+    description: Identifier of the related beer order
+    example: 42
+  shipmentStatus:
+    type: string
+    description: Desired initial shipment status (defaults to PENDING if omitted)
+    enum: [PENDING, PACKED, IN_TRANSIT, OUT_FOR_DELIVERY, DELIVERED, CANCELLED]
+    example: PENDING
+  shippedDate:
+    type: string
+    format: date-time
+    nullable: true
+    description: Shipped date if known; will be set when status becomes IN_TRANSIT if missing
+    example: '2025-08-20T14:13:00Z'
+  trackingNumber:
+    type: string
+    nullable: true
+    description: Required when status is IN_TRANSIT or later
+    example: '1Z999AA10123456784'
+  carrier:
+    type: string
+    nullable: true
+    description: Required when status is IN_TRANSIT or later
+    example: 'UPS'
+  notes:
+    type: string
+    nullable: true
+    description: Optional notes about the shipment
+    example: 'Leave at the front desk'
+required:
+  - beerOrderId

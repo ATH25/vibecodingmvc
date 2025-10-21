@@ -1,0 +1,43 @@
+type: object
+description: Beer order shipment details
+properties:
+  id:
+    type: integer
+    format: int32
+    description: Shipment identifier
+    example: 101
+  beerOrderId:
+    type: integer
+    format: int32
+    description: Identifier of the related beer order
+    example: 42
+  shipmentStatus:
+    type: string
+    description: Current shipment status
+    enum: [PENDING, PACKED, IN_TRANSIT, OUT_FOR_DELIVERY, DELIVERED, CANCELLED]
+    example: PENDING
+  shippedDate:
+    type: string
+    format: date-time
+    nullable: true
+    description: Date and time when the shipment left the warehouse
+    example: '2025-08-20T14:13:00Z'
+  trackingNumber:
+    type: string
+    nullable: true
+    description: Carrier tracking number
+    example: '1Z999AA10123456784'
+  carrier:
+    type: string
+    nullable: true
+    description: Carrier name
+    example: 'UPS'
+  notes:
+    type: string
+    nullable: true
+    description: Optional notes about the shipment
+    example: 'Leave at the front desk'
+required:
+  - id
+  - beerOrderId
+  - shipmentStatus
