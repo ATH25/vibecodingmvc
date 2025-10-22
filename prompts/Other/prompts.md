@@ -106,3 +106,6 @@ Deliver:
 - List files created/updated/deleted.
 - Brief diff summary of key changes.
 - Commit with message: "docs(openapi): clean split spec from Springdoc (Option B)".
+
+-------------------------------
+Analyze the class src/main/java/tom/springframework/vibecodingmvc/services/impl/CustomerServiceImpl.java and generate JUnit 5 tests using Mockito to cover all untested methods and branches. Create the new test class in src/test/java/tom/springframework/vibecodingmvc/services/impl/CustomerServiceImplTest.java. Use best practices like mocking dependencies, using @InjectMocks and @Mock annotations, and validating both success and failure scenarios. Include @Transactional method tests too.

@@ -1,0 +1,29 @@
+type: object
+description: Update beer order shipment request
+properties:
+  shipmentStatus:
+    type: string
+    description: New shipment status
+    enum: [PENDING, PACKED, IN_TRANSIT, OUT_FOR_DELIVERY, DELIVERED, CANCELLED]
+    example: IN_TRANSIT
+  shippedDate:
+    type: string
+    format: date-time
+    nullable: true
+    description: Shipped date; required when moving to DELIVERED (if not already set)
+    example: '2025-08-21T10:00:00Z'
+  trackingNumber:
+    type: string
+    nullable: true
+    description: Required when status is IN_TRANSIT or later
+    example: '1Z999AA10123456784'
+  carrier:
+    type: string
+    nullable: true
+    description: Required when status is IN_TRANSIT or later
+    example: 'UPS'
+  notes:
+    type: string
+    nullable: true
+    description: Optional notes about the shipment
+    example: 'Leave at side door'
