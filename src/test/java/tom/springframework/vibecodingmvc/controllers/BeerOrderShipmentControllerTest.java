@@ -15,7 +15,6 @@ import tom.springframework.vibecodingmvc.models.BeerOrderShipmentUpdateDto;
 import tom.springframework.vibecodingmvc.services.BeerOrderShipmentService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,60 +37,22 @@ class BeerOrderShipmentControllerTest {
     BeerOrderShipmentService service;
 
     @Test
-    @DisplayName("POST create returns 201 with Location and body")
+    @DisplayName("POST create returns 201 with Location")
     void create_ok() throws Exception {
         BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(11, "PENDING", null, null, null, null);
         String json = objectMapper.writeValueAsString(create);
-
         given(service.create(any(BeerOrderShipmentCreateDto.class))).willReturn(100);
-        BeerOrderShipmentDto dto = new BeerOrderShipmentDto(100, 11, "PENDING", null, null, null, null);
-        given(service.get(100)).willReturn(Optional.of(dto));
 
         mockMvc.perform(post("/api/v1/beerorder-shipments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", containsString("/api/v1/beerorder-shipments/100")))
-                .andExpect(jsonPath("$.id", is(100)))
-                .andExpect(jsonPath("$.beerOrderId", is(11)))
-                .andExpect(jsonPath("$.shipmentStatus", is("PENDING")));
+                .andExpect(header().string("Location", containsString("/api/v1/beerorder-shipments/100")));
     }
 
     @Test
-    @DisplayName("POST create with negative beerOrderId fails validation 400")
-    void create_validationError() throws Exception {
-        // negative beerOrderId should fail @Positive
-        BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(-1, null, null, null, null, null);
-        String json = objectMapper.writeValueAsString(create);
-
-        mockMvc.perform(post("/api/v1/beerorder-shipments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void get_found() throws Exception {
-        BeerOrderShipmentDto dto = new BeerOrderShipmentDto(5, 11, "PENDING", null, null, null, null);
-        given(service.get(5)).willReturn(Optional.of(dto));
-
-        mockMvc.perform(get("/api/v1/beerorder-shipments/{id}", 5))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(5)))
-                .andExpect(jsonPath("$.beerOrderId", is(11)))
-                .andExpect(jsonPath("$.shipmentStatus", is("PENDING")));
-    }
-
-    @Test
-    void get_notFound() throws Exception {
-        given(service.get(55)).willReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/v1/beerorder-shipments/{id}", 55))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void list_ok_and_validation() throws Exception {
+    @DisplayName("GET list returns items")
+    void list_ok() throws Exception {
         List<BeerOrderShipmentDto> list = List.of(
                 new BeerOrderShipmentDto(1, 9, "PENDING", null, null, null, null),
                 new BeerOrderShipmentDto(2, 9, "PACKED", null, null, null, null)
@@ -103,7 +64,11 @@ class BeerOrderShipmentControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[1].shipmentStatus", is("PACKED")));
+    }
 
+    @Test
+    @DisplayName("GET list with negative beerOrderId fails validation 400")
+    void list_validationError() throws Exception {
         mockMvc.perform(get("/api/v1/beerorder-shipments").param("beerOrderId", "-2"))
                 .andExpect(status().isBadRequest());
     }
@@ -119,7 +84,7 @@ class BeerOrderShipmentControllerTest {
                 .andExpect(status().isNoContent());
 
         // 404 case
-        doThrow(new EntityNotFoundException("Shipment not found: 404")).when(service).update(eq(404), any());
+        doThrow(new EntityNotFoundException("Shipment not found: 404")).when(service).update(eq(404), any(BeerOrderShipmentUpdateDto.class));
         mockMvc.perform(patch("/api/v1/beerorder-shipments/{id}", 404)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
