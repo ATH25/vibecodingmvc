@@ -150,7 +150,16 @@ public class OrderService {
 * **Explicit HTTP status codes via ResponseEntity:** Use `ResponseEntity<T>` to return the correct status (e.g. 200 OK, 201 Created, 404 Not Found) along with the response body.
 * Use pagination for collection resources that may contain an unbounded number of items.
 * The JSON payload must use a JSON object as a top-level data structure to allow for future extension.
+
 * Use snake_case or camelCase for JSON property names consistently.
+
+- Prefer nested resource paths for sub-resources:
+  * If a resource is clearly a sub-resource of another (for example, shipments belonging to an order), prefer a nested path that reflects that relationship:
+    - Good: `/api/v1/beerorders/{beerOrderId}/shipments`
+    - Avoid: `/api/v1/shipments?beerOrderId={beerOrderId}`
+  * Benefits: clearer ownership semantics, better discoverability, easier authorization scoping, and more RESTful design.
+  * When generating code or OpenAPI paths, Junie should follow this pattern by default; use query parameters primarily for filtering or searching across multiple parent resources (e.g., `?status=SHIPPED&from=...&to=...`).
+  * Prompt tip for Junie: `"When adding endpoints for a subordinate resource X that belongs to parent resource Y, prefer the nested path /api/v1/ys/{yId}/xs unless there is a strong reason to keep X as a top-level resource. If you choose a top-level path, document why in the plan.md."`
 
 **Explanation:**
 
