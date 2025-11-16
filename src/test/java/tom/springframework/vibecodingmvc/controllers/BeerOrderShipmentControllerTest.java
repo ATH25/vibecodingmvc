@@ -16,6 +16,8 @@ import tom.springframework.vibecodingmvc.models.BeerOrderShipmentDto;
 import tom.springframework.vibecodingmvc.models.BeerOrderShipmentUpdateDto;
 import tom.springframework.vibecodingmvc.services.BeerOrderShipmentService;
 
+import tom.springframework.vibecodingmvc.entities.ShipmentStatus;
+
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -51,7 +53,7 @@ class BeerOrderShipmentControllerTest {
     @DisplayName("POST create returns 201 with Location")
     void create_ok() throws Exception {
         int beerOrderId = 11;
-        BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(beerOrderId, "PENDING", null, null, null, null);
+        BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(beerOrderId, ShipmentStatus.PENDING, null, null, null, null);
         String json = objectMapper.writeValueAsString(create);
         given(service.create(any(BeerOrderShipmentCreateDto.class))).willReturn(100);
 
