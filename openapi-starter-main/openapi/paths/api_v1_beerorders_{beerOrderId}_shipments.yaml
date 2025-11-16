@@ -1,0 +1,46 @@
+parameters:
+  - in: path
+    name: beerOrderId
+    required: true
+    schema:
+      type: integer
+      format: int32
+      minimum: 1
+    description: Beer order identifier
+post:
+  tags: [Beer Order Shipments]
+  summary: Create a beer order shipment for a beer order
+  operationId: createBeerOrderShipment
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/BeerOrderShipmentCreateDto.yaml
+  responses:
+    '201':
+      description: Created
+      headers:
+        Location:
+          description: URI of the created beer order shipment
+          schema: { type: string }
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BeerOrderShipmentDto.yaml
+    '400': { description: Bad Request }
+    '404': { description: Beer order not found }
+get:
+  tags: [Beer Order Shipments]
+  summary: List shipments for a beer order
+  operationId: listBeerOrderShipments
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/BeerOrderShipmentDto.yaml
+    '400': { description: Bad Request }
