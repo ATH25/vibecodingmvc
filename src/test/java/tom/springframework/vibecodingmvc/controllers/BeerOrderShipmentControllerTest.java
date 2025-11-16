@@ -50,27 +50,29 @@ class BeerOrderShipmentControllerTest {
     @Test
     @DisplayName("POST create returns 201 with Location")
     void create_ok() throws Exception {
-        BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(11, "PENDING", null, null, null, null);
+        int beerOrderId = 11;
+        BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(beerOrderId, "PENDING", null, null, null, null);
         String json = objectMapper.writeValueAsString(create);
         given(service.create(any(BeerOrderShipmentCreateDto.class))).willReturn(100);
 
-        mockMvc.perform(post("/api/v1/beerorder-shipments")
+        mockMvc.perform(post("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", containsString("/api/v1/beerorder-shipments/100")));
+                .andExpect(header().string("Location", containsString("/api/v1/beerorders/" + beerOrderId + "/shipments/100")));
     }
 
     @Test
     @DisplayName("GET list returns items")
     void list_ok() throws Exception {
+        int beerOrderId = 9;
         List<BeerOrderShipmentDto> list = List.of(
-                new BeerOrderShipmentDto(1, 9, "PENDING", null, null, null, null),
-                new BeerOrderShipmentDto(2, 9, "PACKED", null, null, null, null)
+                new BeerOrderShipmentDto(1, beerOrderId, "PENDING", null, null, null, null),
+                new BeerOrderShipmentDto(2, beerOrderId, "PACKED", null, null, null, null)
         );
-        given(service.listByBeerOrderId(9)).willReturn(list);
+        given(service.listByBeerOrderId(beerOrderId)).willReturn(list);
 
-        mockMvc.perform(get("/api/v1/beerorder-shipments").param("beerOrderId", "9"))
+        mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))
@@ -80,23 +82,24 @@ class BeerOrderShipmentControllerTest {
     @Test
     @DisplayName("GET list with negative beerOrderId fails validation 400")
     void list_validationError() throws Exception {
-        mockMvc.perform(get("/api/v1/beerorder-shipments").param("beerOrderId", "-2"))
+        mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments", -2))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void patch_update_noContent_and_errorCases() throws Exception {
+        int beerOrderId = 22;
         BeerOrderShipmentUpdateDto updateDto = new BeerOrderShipmentUpdateDto("IN_TRANSIT", null, "TN", "DHL", null);
         String json = objectMapper.writeValueAsString(updateDto);
 
-        mockMvc.perform(patch("/api/v1/beerorder-shipments/{id}", 77)
+        mockMvc.perform(patch("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 77)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNoContent());
 
         // 404 case
         doThrow(new EntityNotFoundException("Shipment not found: 404")).when(service).update(eq(404), any(BeerOrderShipmentUpdateDto.class));
-        mockMvc.perform(patch("/api/v1/beerorder-shipments/{id}", 404)
+        mockMvc.perform(patch("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 404)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound());
@@ -104,11 +107,12 @@ class BeerOrderShipmentControllerTest {
 
     @Test
     void delete_noContent_and_notFound() throws Exception {
-        mockMvc.perform(delete("/api/v1/beerorder-shipments/{id}", 12))
+        int beerOrderId = 33;
+        mockMvc.perform(delete("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 12))
                 .andExpect(status().isNoContent());
 
         doThrow(new EntityNotFoundException("Shipment not found: 999")).when(service).delete(999);
-        mockMvc.perform(delete("/api/v1/beerorder-shipments/{id}", 999))
+        mockMvc.perform(delete("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 999))
                 .andExpect(status().isNotFound());
     }
 }
