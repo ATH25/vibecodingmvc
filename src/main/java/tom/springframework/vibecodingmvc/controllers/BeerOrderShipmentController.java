@@ -30,6 +30,10 @@ class BeerOrderShipmentController {
     ResponseEntity<BeerOrderShipmentDto> create(@PathVariable @Positive Integer beerOrderId,
                                                 @Valid @RequestBody BeerOrderShipmentCreateDto dto,
                                                 UriComponentsBuilder uriBuilder) {
+        // Ensure BeerOrder exists
+        if (!service.beerOrderExists(beerOrderId)) {
+            return ResponseEntity.notFound().build();
+        }
         // Ensure path variable and payload are consistent
         if (dto.beerOrderId() != null && !dto.beerOrderId().equals(beerOrderId)) {
             return ResponseEntity.badRequest().build();
@@ -54,6 +58,10 @@ class BeerOrderShipmentController {
 
     @GetMapping(produces = "application/json")
     ResponseEntity<List<BeerOrderShipmentDto>> listByOrder(@PathVariable @Positive Integer beerOrderId) {
+        // Return 404 if the BeerOrder does not exist
+        if (!service.beerOrderExists(beerOrderId)) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(service.listByBeerOrderId(beerOrderId));
     }
 

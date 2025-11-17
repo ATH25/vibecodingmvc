@@ -55,6 +55,7 @@ class BeerOrderShipmentControllerTest {
         int beerOrderId = 11;
         BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(beerOrderId, ShipmentStatus.PENDING, null, null, null, null);
         String json = objectMapper.writeValueAsString(create);
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
         given(service.create(any(BeerOrderShipmentCreateDto.class))).willReturn(100);
 
         mockMvc.perform(post("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId)
@@ -72,6 +73,7 @@ class BeerOrderShipmentControllerTest {
                 new BeerOrderShipmentDto(1, beerOrderId, "PENDING", null, null, null, null),
                 new BeerOrderShipmentDto(2, beerOrderId, "PACKED", null, null, null, null)
         );
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
         given(service.listByBeerOrderId(beerOrderId)).willReturn(list);
 
         mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId))
@@ -79,6 +81,30 @@ class BeerOrderShipmentControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[1].shipmentStatus", is("PACKED")));
+    }
+
+    @Test
+    @DisplayName("GET list returns 404 when beer order does not exist")
+    void list_notFound_whenOrderMissing() throws Exception {
+        int beerOrderId = 1234;
+        given(service.beerOrderExists(beerOrderId)).willReturn(false);
+
+        mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("POST create returns 404 when beer order does not exist")
+    void create_notFound_whenOrderMissing() throws Exception {
+        int beerOrderId = 55;
+        BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(beerOrderId, ShipmentStatus.PENDING, null, null, null, null);
+        String json = objectMapper.writeValueAsString(create);
+        given(service.beerOrderExists(beerOrderId)).willReturn(false);
+
+        mockMvc.perform(post("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isNotFound());
     }
 
     @Test

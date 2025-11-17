@@ -75,6 +75,12 @@ class BeerOrderShipmentServiceImpl implements BeerOrderShipmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public boolean beerOrderExists(Integer beerOrderId) {
+        return orderRepository.existsById(beerOrderId);
+    }
+
+    @Override
     @Transactional
     public void update(Integer id, BeerOrderShipmentUpdateDto dto) {
         BeerOrderShipment entity = shipmentRepository.findById(id)
