@@ -86,8 +86,6 @@ class BeerOrderShipmentServiceImpl implements BeerOrderShipmentService {
         BeerOrderShipment entity = shipmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Shipment not found: " + id));
 
-        ShipmentStatus originalStatus = entity.getShipmentStatus();
-
         mapper.updateEntity(entity, dto);
 
         applyBusinessRulesOnCreateOrUpdate(entity);
