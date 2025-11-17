@@ -55,6 +55,7 @@ class BeerOrderShipmentControllerTest {
         int beerOrderId = 11;
         BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(beerOrderId, ShipmentStatus.PENDING, null, null, null, null);
         String json = objectMapper.writeValueAsString(create);
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
         given(service.create(any(BeerOrderShipmentCreateDto.class))).willReturn(100);
 
         mockMvc.perform(post("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId)
@@ -72,6 +73,7 @@ class BeerOrderShipmentControllerTest {
                 new BeerOrderShipmentDto(1, beerOrderId, "PENDING", null, null, null, null),
                 new BeerOrderShipmentDto(2, beerOrderId, "PACKED", null, null, null, null)
         );
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
         given(service.listByBeerOrderId(beerOrderId)).willReturn(list);
 
         mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId))
@@ -79,6 +81,30 @@ class BeerOrderShipmentControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[1].shipmentStatus", is("PACKED")));
+    }
+
+    @Test
+    @DisplayName("GET list returns 404 when beer order does not exist")
+    void list_notFound_whenOrderMissing() throws Exception {
+        int beerOrderId = 1234;
+        given(service.beerOrderExists(beerOrderId)).willReturn(false);
+
+        mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("POST create returns 404 when beer order does not exist")
+    void create_notFound_whenOrderMissing() throws Exception {
+        int beerOrderId = 55;
+        BeerOrderShipmentCreateDto create = new BeerOrderShipmentCreateDto(beerOrderId, ShipmentStatus.PENDING, null, null, null, null);
+        String json = objectMapper.writeValueAsString(create);
+        given(service.beerOrderExists(beerOrderId)).willReturn(false);
+
+        mockMvc.perform(post("/api/v1/beerorders/{beerOrderId}/shipments", beerOrderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -93,15 +119,25 @@ class BeerOrderShipmentControllerTest {
         int beerOrderId = 22;
         BeerOrderShipmentUpdateDto updateDto = new BeerOrderShipmentUpdateDto("IN_TRANSIT", null, "TN", "DHL", null);
         String json = objectMapper.writeValueAsString(updateDto);
+        // Beer order exists for success case
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
 
         mockMvc.perform(patch("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 77)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNoContent());
 
-        // 404 case
+        // 404 shipment not found case (but order exists)
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
         doThrow(new EntityNotFoundException("Shipment not found: 404")).when(service).update(eq(404), any(BeerOrderShipmentUpdateDto.class));
         mockMvc.perform(patch("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 404)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isNotFound());
+
+        // 404 when beer order does not exist
+        given(service.beerOrderExists(9999)).willReturn(false);
+        mockMvc.perform(patch("/api/v1/beerorders/{beerOrderId}/shipments/{id}", 9999, 77)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound());
@@ -110,11 +146,40 @@ class BeerOrderShipmentControllerTest {
     @Test
     void delete_noContent_and_notFound() throws Exception {
         int beerOrderId = 33;
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
         mockMvc.perform(delete("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 12))
                 .andExpect(status().isNoContent());
 
         doThrow(new EntityNotFoundException("Shipment not found: 999")).when(service).delete(999);
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
         mockMvc.perform(delete("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, 999))
+                .andExpect(status().isNotFound());
+
+        // 404 when beer order does not exist
+        given(service.beerOrderExists(4444)).willReturn(false);
+        mockMvc.perform(delete("/api/v1/beerorders/{beerOrderId}/shipments/{id}", 4444, 12))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET by id returns item and 404 when order missing")
+    void getById_ok_and_notFoundWhenOrderMissing() throws Exception {
+        int beerOrderId = 77;
+        int shipmentId = 888;
+        BeerOrderShipmentDto dto = new BeerOrderShipmentDto(shipmentId, beerOrderId, "PENDING", null, null, null, null);
+
+        // success
+        given(service.beerOrderExists(beerOrderId)).willReturn(true);
+        given(service.get(shipmentId)).willReturn(java.util.Optional.of(dto));
+        mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments/{id}", beerOrderId, shipmentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(shipmentId)))
+                .andExpect(jsonPath("$.beerOrderId", is(beerOrderId)))
+                .andExpect(jsonPath("$.shipmentStatus", is("PENDING")));
+
+        // order missing
+        given(service.beerOrderExists(9999)).willReturn(false);
+        mockMvc.perform(get("/api/v1/beerorders/{beerOrderId}/shipments/{id}", 9999, shipmentId))
                 .andExpect(status().isNotFound());
     }
 }

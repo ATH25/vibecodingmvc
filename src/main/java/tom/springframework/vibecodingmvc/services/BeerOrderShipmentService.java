@@ -15,6 +15,11 @@ public interface BeerOrderShipmentService {
 
     List<BeerOrderShipmentDto> listByBeerOrderId(Integer beerOrderId);
 
+    /**
+     * Returns true if a BeerOrder with the given id exists.
+     */
+    boolean beerOrderExists(Integer beerOrderId);
+
     void update(Integer id, BeerOrderShipmentUpdateDto dto);
 
     void delete(Integer id);

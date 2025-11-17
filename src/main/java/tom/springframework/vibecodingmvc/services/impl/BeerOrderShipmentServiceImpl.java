@@ -52,7 +52,7 @@ class BeerOrderShipmentServiceImpl implements BeerOrderShipmentService {
             entity.setShipmentStatus(ShipmentStatus.PENDING);
         }
 
-        applyBusinessRulesOnCreateOrUpdate(entity, null);
+        applyBusinessRulesOnCreateOrUpdate(entity);
 
         BeerOrderShipment saved = shipmentRepository.save(entity);
         log.info("Created shipment id={} for orderId={} with status={}", saved.getId(), order.getId(), saved.getShipmentStatus());
@@ -75,16 +75,20 @@ class BeerOrderShipmentServiceImpl implements BeerOrderShipmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public boolean beerOrderExists(Integer beerOrderId) {
+        return orderRepository.existsById(beerOrderId);
+    }
+
+    @Override
     @Transactional
     public void update(Integer id, BeerOrderShipmentUpdateDto dto) {
         BeerOrderShipment entity = shipmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Shipment not found: " + id));
 
-        ShipmentStatus originalStatus = entity.getShipmentStatus();
-
         mapper.updateEntity(entity, dto);
 
-        applyBusinessRulesOnCreateOrUpdate(entity, originalStatus);
+        applyBusinessRulesOnCreateOrUpdate(entity);
 
         shipmentRepository.save(entity);
         log.info("Updated shipment id={} to status={}", id, entity.getShipmentStatus());
@@ -100,7 +104,7 @@ class BeerOrderShipmentServiceImpl implements BeerOrderShipmentService {
         log.info("Deleted shipment id={}", id);
     }
 
-    private void applyBusinessRulesOnCreateOrUpdate(BeerOrderShipment entity, ShipmentStatus originalStatus) {
+    private void applyBusinessRulesOnCreateOrUpdate(BeerOrderShipment entity) {
         ShipmentStatus status = entity.getShipmentStatus();
         if (status == null) {
             entity.setShipmentStatus(ShipmentStatus.PENDING);

@@ -30,6 +30,10 @@ class BeerOrderShipmentController {
     ResponseEntity<BeerOrderShipmentDto> create(@PathVariable @Positive Integer beerOrderId,
                                                 @Valid @RequestBody BeerOrderShipmentCreateDto dto,
                                                 UriComponentsBuilder uriBuilder) {
+        // Ensure BeerOrder exists
+        if (!service.beerOrderExists(beerOrderId)) {
+            return ResponseEntity.notFound().build();
+        }
         // Ensure path variable and payload are consistent
         if (dto.beerOrderId() != null && !dto.beerOrderId().equals(beerOrderId)) {
             return ResponseEntity.badRequest().build();
@@ -47,6 +51,10 @@ class BeerOrderShipmentController {
     @GetMapping(value = "/{id}", produces = "application/json")
     ResponseEntity<BeerOrderShipmentDto> get(@PathVariable @Positive Integer beerOrderId,
                                              @PathVariable Integer id) {
+        // Ensure BeerOrder exists
+        if (!service.beerOrderExists(beerOrderId)) {
+            return ResponseEntity.notFound().build();
+        }
         return service.get(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -54,6 +62,10 @@ class BeerOrderShipmentController {
 
     @GetMapping(produces = "application/json")
     ResponseEntity<List<BeerOrderShipmentDto>> listByOrder(@PathVariable @Positive Integer beerOrderId) {
+        // Return 404 if the BeerOrder does not exist
+        if (!service.beerOrderExists(beerOrderId)) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(service.listByBeerOrderId(beerOrderId));
     }
 
@@ -61,6 +73,10 @@ class BeerOrderShipmentController {
     ResponseEntity<Void> update(@PathVariable @Positive Integer beerOrderId,
                                 @PathVariable Integer id,
                                 @Valid @RequestBody BeerOrderShipmentUpdateDto dto) {
+        // Ensure BeerOrder exists
+        if (!service.beerOrderExists(beerOrderId)) {
+            return ResponseEntity.notFound().build();
+        }
         service.update(id, dto);
         return ResponseEntity.noContent().build();
     }
@@ -68,6 +84,10 @@ class BeerOrderShipmentController {
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(@PathVariable @Positive Integer beerOrderId,
                                 @PathVariable Integer id) {
+        // Ensure BeerOrder exists
+        if (!service.beerOrderExists(beerOrderId)) {
+            return ResponseEntity.notFound().build();
+        }
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
