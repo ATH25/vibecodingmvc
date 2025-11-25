@@ -2,7 +2,7 @@
 
 A Spring Boot 3 (3.5.4) project on Java 21 to experiment with “vibe coding” — building modern Java apps with focus, flow, and fun.
 
-Updated: 2025-09-28
+Updated: 2025-11-24
 
 ## 🔧 Tech Stack
 
@@ -33,10 +33,16 @@ vibecodingmvc/
 ├── plan/
 │   └── README-plan.md
 ├── prompts/
-│   └── add-customer/
-│       ├── plan.md
-│       ├── requirements.md
-│       └── tasks.md
+│   ├── add-customer/
+│   │   ├── plan.md
+│   │   ├── requirements.md
+│   │   └── tasks.md
+│   ├── applied-prompts/
+│   │   └── add-beer-order-shipment/
+│   │       ├── plan.md
+│   │       └── tasks.md
+│   └── refactor-nested-rest-paths/
+│       └── prompt.md
 ├── src/
 │   ├── main/
 │   │   ├── java/
@@ -45,12 +51,15 @@ vibecodingmvc/
 │   │   │       ├── controllers/
 │   │   │       │   ├── BeerController.java
 │   │   │       │   ├── CustomerController.java
-│   │   │       │   └── BeerOrderController.java
+│   │   │       │   ├── BeerOrderController.java
+│   │   │       │   └── BeerOrderShipmentController.java
 │   │   │       ├── entities/
 │   │   │       │   ├── Beer.java
 │   │   │       │   ├── Customer.java
 │   │   │       │   ├── BeerOrder.java
-│   │   │       │   └── BeerOrderLine.java
+│   │   │       │   ├── BeerOrderLine.java
+│   │   │       │   ├── BeerOrderShipment.java
+│   │   │       │   └── ShipmentStatus.java
 │   │   │       ├── models/ (DTOs & records)
 │   │   │       │   ├── BeerRequestDto.java
 │   │   │       │   ├── BeerResponseDto.java
@@ -59,35 +68,46 @@ vibecodingmvc/
 │   │   │       │   ├── CreateBeerOrderCommand.java
 │   │   │       │   ├── CreateBeerOrderItem.java
 │   │   │       │   ├── BeerOrderResponse.java
-│   │   │       │   └── BeerOrderLineResponse.java
+│   │   │       │   ├── BeerOrderLineResponse.java
+│   │   │       │   ├── BeerOrderShipmentDto.java
+│   │   │       │   ├── BeerOrderShipmentCreateDto.java
+│   │   │       │   └── BeerOrderShipmentUpdateDto.java
 │   │   │       ├── mappers/
 │   │   │       │   ├── BeerMapper.java
 │   │   │       │   ├── CustomerMapper.java
-│   │   │       │   └── BeerOrderMapper.java
+│   │   │       │   ├── BeerOrderMapper.java
+│   │   │       │   └── BeerOrderShipmentMapper.java
 │   │   │       ├── repositories/
 │   │   │       │   ├── BeerRepository.java
 │   │   │       │   ├── CustomerRepository.java
 │   │   │       │   ├── BeerOrderRepository.java
-│   │   │       │   └── BeerOrderLineRepository.java
+│   │   │       │   ├── BeerOrderLineRepository.java
+│   │   │       │   └── BeerOrderShipmentRepository.java
 │   │   │       └── services/
 │   │   │           ├── BeerService.java
 │   │   │           ├── BeerServiceImpl.java
 │   │   │           ├── CustomerService.java
 │   │   │           ├── impl/CustomerServiceImpl.java
 │   │   │           ├── BeerOrderService.java
-│   │   │           └── BeerOrderServiceImpl.java
+│   │   │           ├── BeerOrderServiceImpl.java
+│   │   │           ├── BeerOrderShipmentService.java
+│   │   │           └── impl/BeerOrderShipmentServiceImpl.java
 │   │   └── resources/
 │   │       ├── application.properties
 │   │       └── db/migration/
 │   │           ├── V1__init.sql
-│   │           └── V2__customer.sql
+│   │           ├── V2__customer.sql
+│   │           └── V3__beer_order_shipment.sql
 │   └── test/
 │       ├── java/
 │       │   └── tom/springframework/vibecodingmvc/
 │       │       ├── VibecodingmvcApplicationTests.java
 │       │       ├── controllers/BeerControllerTest.java
+│       │       ├── controllers/BeerOrderShipmentControllerTest.java
 │       │       ├── repositories/BeerRepositoryTest.java
-│       │       └── services/BeerServiceTest.java
+│       │       ├── services/BeerServiceTest.java
+│       │       ├── services/impl/BeerOrderShipmentServiceImplTest.java
+│       │       └── mappers/BeerOrderShipmentMapperTest.java
 │       └── resources/
 │           └── application.properties
 ```
@@ -116,6 +136,11 @@ Default server port is 8080 (Spring Boot default). No external DB needed for loc
 - Reports: target/surefire-reports
 
 Tests use MockMvc for controller and H2 (create-drop) for repository/data interactions.
+
+Additional coverage:
+- BeerOrderShipmentControllerTest (MockMvc, nested paths)
+- BeerOrderShipmentServiceImplTest (service rules and transitions)
+- BeerOrderShipmentMapperTest (MapStruct mapping)
 
 ## 🍺 Beer API
 
@@ -170,6 +195,76 @@ Notes:
 - The API now uses DTOs: BeerRequestDto for inputs and BeerResponseDto for outputs. Validation is applied on inputs (@NotBlank, @PositiveOrZero, @DecimalMin>0). Mapping is done via MapStruct.
 - Errors return standard HTTP status codes (404 on missing resources).
 
+## 📦 Beer Order Shipments API
+
+Base URL (nested): `/api/v1/beerorders/{beerOrderId}/shipments`
+
+Endpoints:
+- POST `/api/v1/beerorders/{beerOrderId}/shipments`
+  - Create a shipment for a beer order. Returns `201 Created` with `Location` header of the new resource.
+- GET `/api/v1/beerorders/{beerOrderId}/shipments`
+  - List all shipments for a beer order. Returns `200 OK` with JSON array.
+- GET `/api/v1/beerorders/{beerOrderId}/shipments/{id}`
+  - Get a specific shipment. Returns `200 OK` or `404 Not Found`.
+- PATCH `/api/v1/beerorders/{beerOrderId}/shipments/{id}`
+  - Partial update of shipment status/metadata. Returns `204 No Content`.
+- DELETE `/api/v1/beerorders/{beerOrderId}/shipments/{id}`
+  - Delete a shipment. Returns `204 No Content`.
+
+Business rules:
+- If `beerOrderId` in the path does not exist, endpoints return `404 Not Found`.
+- Default `shipmentStatus` is `PENDING` on create if not provided.
+- When moving to `IN_TRANSIT` or later, `trackingNumber` and `carrier` are required; `shippedDate` will be set if missing.
+- If status becomes `DELIVERED` and `shippedDate` is missing, it will be set.
+
+DTOs:
+- BeerOrderShipmentCreateDto
+  - Fields: `beerOrderId` (Integer, required), `shipmentStatus` (ShipmentStatus, required), `shippedDate` (LocalDateTime, optional), `trackingNumber` (String), `carrier` (String), `notes` (String)
+- BeerOrderShipmentDto (response)
+  - Fields: `id` (Integer), `beerOrderId` (Integer), `shipmentStatus` (String), `shippedDate` (LocalDateTime), `trackingNumber` (String), `carrier` (String), `notes` (String)
+- BeerOrderShipmentUpdateDto
+  - Fields: `shipmentStatus` (String), `shippedDate` (LocalDateTime), `trackingNumber` (String), `carrier` (String), `notes` (String)
+
+Example curl:
+- Create
+  ```bash
+  curl -i -H "Content-Type: application/json" \
+    -d '{
+      "beerOrderId": 1,
+      "shipmentStatus": "PENDING",
+      "trackingNumber": null,
+      "carrier": null,
+      "notes": "Initial fulfillment"
+    }' \
+    http://localhost:8080/api/v1/beerorders/1/shipments
+  ```
+
+- List by order
+  ```bash
+  curl -s http://localhost:8080/api/v1/beerorders/1/shipments | jq
+  ```
+
+- Get by id
+  ```bash
+  curl -i http://localhost:8080/api/v1/beerorders/1/shipments/10
+  ```
+
+- Move to IN_TRANSIT
+  ```bash
+  curl -i -X PATCH -H "Content-Type: application/json" \
+    -d '{
+      "shipmentStatus": "IN_TRANSIT",
+      "trackingNumber": "1Z999AA10123456784",
+      "carrier": "UPS"
+    }' \
+    http://localhost:8080/api/v1/beerorders/1/shipments/10
+  ```
+
+- Delete
+  ```bash
+  curl -i -X DELETE http://localhost:8080/api/v1/beerorders/1/shipments/10
+  ```
+
 ## 🧑‍🤝‍🧑 Customer API
 
 Base URL: /api/v1/customers
@@ -217,12 +312,31 @@ Notes:
   - npm start
 - Path file naming convention: mirror the URL with '/' replaced by '_' and keep path params in braces, e.g. /api/v1/beers/{beerId} -> paths/api_v1_beers_{beerId}.yaml
 
+Shipment-specific OpenAPI files:
+- Paths:
+  - `openapi-starter-main/openapi/paths/api_v1_beerorders_{beerOrderId}_shipments.yaml`
+  - `openapi-starter-main/openapi/paths/api_v1_beerorders_{beerOrderId}_shipments_{id}.yaml`
+- Schemas:
+  - `openapi-starter-main/openapi/components/schemas/BeerOrderShipmentCreateDto.yaml`
+  - `openapi-starter-main/openapi/components/schemas/BeerOrderShipmentDto.yaml`
+
 ## 📌 Operational Notes
 
 - DB: H2 in-memory for dev/tests.
-- Flyway: enabled; migrations exist under src/main/resources/db/migration (e.g., V1__init.sql, V2__customer.sql). JPA ddl-auto=validate.
+- Flyway: enabled; migrations exist under src/main/resources/db/migration (e.g., V1__init.sql, V2__customer.sql, V3__beer_order_shipment.sql). JPA ddl-auto=validate.
 - OSIV: disabled (spring.jpa.open-in-view=false).
 - Exception handling: Plan to add a GlobalExceptionHandler to standardize error responses.
+
+## 🆕 What's New
+
+- Added Beer Order Shipments with nested RESTful paths under `/api/v1/beerorders/{beerOrderId}/shipments`.
+- New DTOs: `BeerOrderShipmentCreateDto`, `BeerOrderShipmentUpdateDto`, `BeerOrderShipmentDto`.
+- New controller/service/repository/entity: `BeerOrderShipmentController`, `BeerOrderShipmentService` + `BeerOrderShipmentServiceImpl`, `BeerOrderShipmentRepository`, `BeerOrderShipment` entity and `ShipmentStatus` enum.
+- Business rules enforced at service layer (requires tracking/carrier when `IN_TRANSIT+`).
+- MapStruct mapper `BeerOrderShipmentMapper` for DTO↔entity.
+- Flyway migration `V3__beer_order_shipment.sql` to create tables and indexes.
+- Tests added for controller, service, and mapper.
+- OpenAPI spec updated with shipment paths and schemas.
 
 ## Using Junie
 
