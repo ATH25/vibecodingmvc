@@ -1,7 +1,5 @@
 package tom.springframework.vibecodingmvc.controllers;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,8 +52,8 @@ class BeerController {
             @Parameter(description = "Pagination parameters (page, size) provided by Spring Data")
             Pageable pageable
     ) {
-        String sanitizedBeerName = beerName != null ? StringEscapeUtils.escapeHtml4(beerName) : null;
-        return ResponseEntity.ok(beerService.listBeers(sanitizedBeerName, pageable));
+        // Pass the optional filter through; service handles null/blank
+        return ResponseEntity.ok(beerService.listBeers(beerName, pageable));
     }
 
     @GetMapping("/{beerId}")
