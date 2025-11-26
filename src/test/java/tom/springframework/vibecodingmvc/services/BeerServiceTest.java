@@ -34,9 +34,12 @@ class BeerServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        beerMapper = Mappers.getMapper(BeerMapper.class);
-        beerService = new BeerServiceImpl(beerRepository, beerMapper);
+        try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
+            beerMapper = Mappers.getMapper(BeerMapper.class);
+            beerService = new BeerServiceImpl(beerRepository, beerMapper);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize mocks", e);
+        }
     }
 
     @Test
