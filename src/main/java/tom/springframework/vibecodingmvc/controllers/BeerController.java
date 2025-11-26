@@ -12,13 +12,13 @@ import tom.springframework.vibecodingmvc.services.BeerService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.util.HtmlUtils;
 
 @RestController
 @RequestMapping("/api/v1/beers")
@@ -52,8 +52,9 @@ class BeerController {
             @Parameter(description = "Pagination parameters (page, size) provided by Spring Data")
             Pageable pageable
     ) {
-        // Pass the optional filter through; service handles null/blank
-        return ResponseEntity.ok(beerService.listBeers(beerName, pageable));
+        // Sanitize user input to avoid XSS issues when echoed back in any UI and pass along. Service handles null/blank
+        String safeBeerName = beerName != null ? HtmlUtils.htmlEscape(beerName) : null;
+        return ResponseEntity.ok(beerService.listBeers(safeBeerName, pageable));
     }
 
     @GetMapping("/{beerId}")

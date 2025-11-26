@@ -105,7 +105,7 @@ class BeerControllerTest {
     @Test
     void listBeers_returnsPaged_withFilter() throws Exception {
         PageRequest pageRequest = PageRequest.of(0, 1);
-        List<BeerResponseDto> onlyFirst = List.of(beers.stream().findFirst().get());
+        List<BeerResponseDto> onlyFirst = List.of(beers.get(0));
         Page<BeerResponseDto> page = new PageImpl<>(onlyFirst, pageRequest, 1);
         given(beerService.listBeers(eq("Test"), any())).willReturn(page);
 

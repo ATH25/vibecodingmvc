@@ -2,8 +2,9 @@ package tom.springframework.vibecodingmvc.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class BeerServiceTest {
 
     @Mock
@@ -34,12 +36,8 @@ class BeerServiceTest {
 
     @BeforeEach
     void setUp() {
-        try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
-            beerMapper = Mappers.getMapper(BeerMapper.class);
-            beerService = new BeerServiceImpl(beerRepository, beerMapper);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize mocks", e);
-        }
+        beerMapper = Mappers.getMapper(BeerMapper.class);
+        beerService = new BeerServiceImpl(beerRepository, beerMapper);
     }
 
     @Test
