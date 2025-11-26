@@ -1,14 +1,14 @@
 package tom.springframework.vibecodingmvc.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tom.springframework.vibecodingmvc.models.BeerRequestDto;
 import tom.springframework.vibecodingmvc.models.BeerResponseDto;
 import tom.springframework.vibecodingmvc.services.BeerService;
-
-import java.util.List;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,17 +34,25 @@ class BeerController {
     @GetMapping
     @Operation(
             summary = "List beers",
-            description = "Returns all beers available in the catalog."
+            description = "Returns beers available in the catalog, with optional filtering by beerName and pagination."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "List of beers returned",
+            @ApiResponse(responseCode = "200", description = "Page of beers returned",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = BeerResponseDto.class)),
-                            examples = @ExampleObject(name = "BeersExample", value = "[\n  {\n    \"id\": 1,\n    \"version\": 0,\n    \"beerName\": \"Galaxy Cat IPA\",\n    \"beerStyle\": \"IPA\",\n    \"upc\": \"0123456789012\",\n    \"quantityOnHand\": 120,\n    \"price\": 12.99,\n    \"createdDate\": \"2025-08-01T12:34:56\",\n    \"updatedDate\": \"2025-08-15T09:00:00\"\n  }\n]"))
+                            schema = @Schema(
+                                    description = "Spring Data Page of BeerResponseDto",
+                                    implementation = Object.class
+                            ),
+                            examples = @ExampleObject(name = "BeersPageExample", value = "{\n  \"content\": [\n    {\n      \"id\": 1,\n      \"version\": 0,\n      \"beerName\": \"Galaxy Cat IPA\",\n      \"beerStyle\": \"IPA\",\n      \"upc\": \"0123456789012\",\n      \"quantityOnHand\": 120,\n      \"price\": 12.99,\n      \"createdDate\": \"2025-08-01T12:34:56\",\n      \"updatedDate\": \"2025-08-15T09:00:00\"\n    }\n  ],\n  \"pageable\": {\n    \"pageNumber\": 0,\n    \"pageSize\": 10\n  },\n  \"totalElements\": 1,\n  \"totalPages\": 1,\n  \"number\": 0,\n  \"size\": 10\n}"))
             )
     })
-    ResponseEntity<List<BeerResponseDto>> listBeers() {
-        return ResponseEntity.ok(beerService.listBeers());
+    ResponseEntity<Page<BeerResponseDto>> listBeers(
+            @Parameter(description = "Optional filter by beer name", example = "Galaxy")
+            @RequestParam(value = "beerName", required = false) String beerName,
+            @Parameter(description = "Pagination parameters (page, size) provided by Spring Data")
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(beerService.listBeers(beerName, pageable));
     }
 
     @GetMapping("/{beerId}")

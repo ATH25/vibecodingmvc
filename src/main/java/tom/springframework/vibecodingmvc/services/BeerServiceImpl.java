@@ -1,18 +1,20 @@
 package tom.springframework.vibecodingmvc.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import tom.springframework.vibecodingmvc.entities.Beer;
 import tom.springframework.vibecodingmvc.mappers.BeerMapper;
 import tom.springframework.vibecodingmvc.models.BeerRequestDto;
 import tom.springframework.vibecodingmvc.models.BeerResponseDto;
 import tom.springframework.vibecodingmvc.repositories.BeerRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class BeerServiceImpl implements BeerService {
-    
+
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
 
@@ -22,10 +24,11 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public List<BeerResponseDto> listBeers() {
-        return beerRepository.findAll().stream()
-                .map(beerMapper::toResponseDto)
-                .toList();
+    public Page<BeerResponseDto> listBeers(String beerName, Pageable pageable) {
+        Page<Beer> page = (StringUtils.hasText(beerName))
+                ? beerRepository.findAllByBeerNameContainingIgnoreCase(beerName, pageable)
+                : beerRepository.findAll(pageable);
+        return page.map(beerMapper::toResponseDto);
     }
 
     @Override

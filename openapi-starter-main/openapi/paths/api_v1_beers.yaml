@@ -1,30 +1,67 @@
 get:
   tags: [Beers]
   summary: List beers
-  description: Returns all beers available in the catalog.
+  description: Returns beers with optional filtering and pagination.
   operationId: listBeers
+  parameters:
+    - in: query
+      name: beerName
+      required: false
+      schema:
+        type: string
+      description: Optional filter to match beers by name (case-insensitive, contains)
+    - in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: Zero-based page index (default 0)
+    - in: query
+      name: size
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+      description: The size of the page to be returned (default 20)
   responses:
     '200':
-      description: List of beers returned
+      description: Page of beers returned
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: ../components/schemas/BeerResponseDto.yaml
+            type: object
+            properties:
+              content:
+                type: array
+                items:
+                  $ref: ../components/schemas/BeerResponseDto.yaml
+              totalElements:
+                type: integer
+              totalPages:
+                type: integer
+              size:
+                type: integer
+              number:
+                type: integer
           examples:
-            BeersExample:
-              description: BeersExample
+            BeersPageExample:
+              description: Paged beers example
               value:
-                - id: 1
-                  version: 0
-                  beerName: Galaxy Cat IPA
-                  beerStyle: IPA
-                  upc: '0123456789012'
-                  quantityOnHand: 120
-                  price: 12.99
-                  createdDate: '2025-08-01T12:34:56'
-                  updatedDate: '2025-08-15T09:00:00'
+                content:
+                  - id: 1
+                    version: 0
+                    beerName: Galaxy Cat IPA
+                    beerStyle: IPA
+                    upc: '0123456789012'
+                    quantityOnHand: 120
+                    price: 12.99
+                    createdDate: '2025-08-01T12:34:56'
+                    updatedDate: '2025-08-15T09:00:00'
+                totalElements: 1
+                totalPages: 1
+                number: 0
+                size: 10
     '400':
       description: Bad Request
 post:

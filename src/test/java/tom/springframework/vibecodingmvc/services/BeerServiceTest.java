@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import tom.springframework.vibecodingmvc.entities.Beer;
 import tom.springframework.vibecodingmvc.mappers.BeerMapper;
 import tom.springframework.vibecodingmvc.models.BeerRequestDto;
@@ -12,13 +16,11 @@ import tom.springframework.vibecodingmvc.models.BeerResponseDto;
 import tom.springframework.vibecodingmvc.repositories.BeerRepository;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class BeerServiceTest {
@@ -38,7 +40,7 @@ class BeerServiceTest {
     }
 
     @Test
-    void testListBeers() {
+    void listBeers_paged_noFilter_callsFindAllWithPageable() {
         // Given
         Beer beer1 = Beer.builder()
                 .id(1)
@@ -56,16 +58,45 @@ class BeerServiceTest {
                 .price(new BigDecimal("13.99"))
                 .quantityOnHand(200)
                 .build();
-        
-        when(beerRepository.findAll()).thenReturn(Arrays.asList(beer1, beer2));
+
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<Beer> page = new PageImpl<>(List.of(beer1, beer2), pageable, 2);
+        when(beerRepository.findAll(pageable)).thenReturn(page);
 
         // When
-        List<BeerResponseDto> beers = beerService.listBeers();
+        Page<BeerResponseDto> result = beerService.listBeers(null, pageable);
 
         // Then
-        assertThat(beers).hasSize(2);
-        assertThat(beers.get(0).id()).isEqualTo(1);
-        verify(beerRepository, times(1)).findAll();
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent().getFirst().id()).isEqualTo(1);
+        verify(beerRepository, times(1)).findAll(pageable);
+        verify(beerRepository, never()).findAllByBeerNameContainingIgnoreCase(anyString(), any());
+    }
+
+    @Test
+    void listBeers_paged_withFilter_callsFindByName() {
+        // Given
+        Beer beer1 = Beer.builder()
+                .id(1)
+                .beerName("Test IPA")
+                .beerStyle("IPA")
+                .upc("111111")
+                .price(new BigDecimal("11.99"))
+                .quantityOnHand(100)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<Beer> page = new PageImpl<>(List.of(beer1), pageable, 1);
+        when(beerRepository.findAllByBeerNameContainingIgnoreCase("Test", pageable)).thenReturn(page);
+
+        // When
+        Page<BeerResponseDto> result = beerService.listBeers("Test", pageable);
+
+        // Then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().getFirst().beerName()).contains("Test");
+        verify(beerRepository, times(1)).findAllByBeerNameContainingIgnoreCase("Test", pageable);
+        verify(beerRepository, never()).findAll(pageable);
     }
 
     @Test
