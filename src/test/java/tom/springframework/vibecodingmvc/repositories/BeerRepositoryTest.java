@@ -3,6 +3,8 @@ package tom.springframework.vibecodingmvc.repositories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import tom.springframework.vibecodingmvc.entities.Beer;
 
 import java.math.BigDecimal;
@@ -122,5 +124,33 @@ class BeerRepositoryTest {
 
         // Then
         assertThat(beers).hasSize(2);
+    }
+
+    @Test
+    void testFindAllByBeerNameContainingIgnoreCase_withPageable() {
+        // Given
+        beerRepository.deleteAll();
+        Beer beer1 = Beer.builder()
+                .beerName("Galaxy Cat IPA")
+                .beerStyle("IPA")
+                .upc("0123456789012")
+                .price(new BigDecimal("12.99"))
+                .quantityOnHand(120)
+                .build();
+        Beer beer2 = Beer.builder()
+                .beerName("Pale Rider")
+                .beerStyle("PALE_ALE")
+                .upc("0987654321098")
+                .price(new BigDecimal("9.49"))
+                .quantityOnHand(64)
+                .build();
+        beerRepository.saveAll(List.of(beer1, beer2));
+
+        // When
+        Page<Beer> page = beerRepository.findAllByBeerNameContainingIgnoreCase("galaxy", PageRequest.of(0, 10));
+
+        // Then
+        assertThat(page.getTotalElements()).isEqualTo(1);
+        assertThat(page.getContent().getFirst().getBeerName()).isEqualTo("Galaxy Cat IPA");
     }
 }

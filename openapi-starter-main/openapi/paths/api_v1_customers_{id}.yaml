@@ -3,6 +3,7 @@ get:
     - Customers
   summary: Get customer by id
   description: Returns the customer with the given id if it exists.
+  operationId: getCustomerById
   parameters:
     - name: id
       in: path
@@ -24,6 +25,7 @@ put:
     - Customers
   summary: Update customer
   description: Updates an existing customer by id.
+  operationId: updateCustomer
   parameters:
     - name: id
       in: path
@@ -53,6 +55,7 @@ delete:
     - Customers
   summary: Delete customer
   description: Deletes a customer by id. Returns 204 if deleted, 404 if not found.
+  operationId: deleteCustomer
   parameters:
     - name: id
       in: path
