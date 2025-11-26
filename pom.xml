@@ -85,11 +85,6 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.7.0</version> <!-- or the latest 2.x -->
         </dependency>
-        <dependency>
-            <groupId>tom.springframework</groupId>
-            <artifactId>vibecodingmvc</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
 
     </dependencies>
 
