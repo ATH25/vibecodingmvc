@@ -91,7 +91,9 @@ class BeerController {
     })
     ResponseEntity<BeerResponseDto> createBeer(
             @Valid @RequestBody BeerRequestDto dto) {
-        BeerResponseDto created = beerService.saveBeer(dto);
+        // Sanitize text fields in request body to mitigate XSS when values are echoed back in responses or views
+        BeerRequestDto safeDto = sanitizeDto(dto);
+        BeerResponseDto created = beerService.saveBeer(safeDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -111,7 +113,8 @@ class BeerController {
             @Parameter(description = "Unique identifier of the beer", example = "1")
             @PathVariable("beerId") Integer beerId,
             @Valid @RequestBody BeerRequestDto dto) {
-        return beerService.updateBeer(beerId, dto)
+        BeerRequestDto safeDto = sanitizeDto(dto);
+        return beerService.updateBeer(beerId, safeDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
@@ -135,5 +138,14 @@ class BeerController {
                     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // Package-private to aid potential reuse in tests; escapes only textual fields
+    BeerRequestDto sanitizeDto(BeerRequestDto dto) {
+        if (dto == null) return null;
+        String safeName = dto.beerName() != null ? HtmlUtils.htmlEscape(dto.beerName()) : null;
+        String safeStyle = dto.beerStyle() != null ? HtmlUtils.htmlEscape(dto.beerStyle()) : null;
+        String safeUpc = dto.upc() != null ? HtmlUtils.htmlEscape(dto.upc()) : null;
+        return new BeerRequestDto(safeName, safeStyle, safeUpc, dto.quantityOnHand(), dto.price());
     }
 }
