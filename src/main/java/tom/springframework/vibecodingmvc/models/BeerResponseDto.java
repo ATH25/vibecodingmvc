@@ -28,6 +28,9 @@ public record BeerResponseDto(
         @Schema(description = "Price per unit", example = "12.99", minimum = "0.01")
         BigDecimal price,
 
+        @Schema(description = "Optional human-readable description of the beer", example = "A bright, citrus-forward IPA brewed with Galaxy hops")
+        String description,
+
         @Schema(description = "Creation timestamp", type = "string", format = "date-time", example = "2025-08-01T12:34:56")
         LocalDateTime createdDate,
 

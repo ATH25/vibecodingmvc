@@ -58,6 +58,7 @@ class BeerControllerTest {
                 "123456",
                 123,
                 new BigDecimal("12.99"),
+                "Test description",
                 null,
                 null
         );
@@ -72,6 +73,7 @@ class BeerControllerTest {
                 "654321",
                 65,
                 new BigDecimal("11.99"),
+                "Another description",
                 null,
                 null
         );
@@ -148,7 +150,8 @@ class BeerControllerTest {
                 "Pale Ale",
                 "987654",
                 100,
-                new BigDecimal("10.99")
+                new BigDecimal("10.99"),
+                "A new beer"
         );
         
         BeerResponseDto savedBeer = new BeerResponseDto(
@@ -159,6 +162,7 @@ class BeerControllerTest {
                 "987654",
                 100,
                 new BigDecimal("10.99"),
+                "A new beer",
                 null,
                 null
         );
@@ -180,7 +184,8 @@ class BeerControllerTest {
                 "Stout",
                 "654321",
                 200,
-                new BigDecimal("14.99")
+                new BigDecimal("14.99"),
+                "Updated desc"
         );
         
         BeerResponseDto savedBeer = new BeerResponseDto(
@@ -191,6 +196,7 @@ class BeerControllerTest {
                 "654321",
                 200,
                 new BigDecimal("14.99"),
+                "Updated desc",
                 null,
                 null
         );
@@ -213,7 +219,8 @@ class BeerControllerTest {
                 "Stout",
                 "654321",
                 200,
-                new BigDecimal("14.99")
+                new BigDecimal("14.99"),
+                "Updated desc"
         );
 
         given(beerService.updateBeer(eq(999), any(BeerRequestDto.class))).willReturn(Optional.empty());

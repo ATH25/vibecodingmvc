@@ -144,7 +144,8 @@ class BeerServiceTest {
                 "Lager",
                 "654321",
                 50,
-                new BigDecimal("9.99")
+                new BigDecimal("9.99"),
+                "A lager desc"
         );
         
         Beer savedBeer = Beer.builder()
@@ -186,7 +187,8 @@ class BeerServiceTest {
                 "Stout",
                 "654321",
                 200,
-                new BigDecimal("14.99")
+                new BigDecimal("14.99"),
+                "Updated desc"
         );
         
         Beer savedBeer = Beer.builder()
@@ -221,7 +223,8 @@ class BeerServiceTest {
                 "Stout",
                 "654321",
                 200,
-                new BigDecimal("14.99")
+                new BigDecimal("14.99"),
+                "Updated desc"
         );
         
         when(beerRepository.findById(beerId)).thenReturn(Optional.empty());

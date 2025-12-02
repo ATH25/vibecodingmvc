@@ -3,6 +3,8 @@ package tom.springframework.vibecodingmvc.controllers;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,11 +48,10 @@ class BeerController {
                             examples = @ExampleObject(name = "BeersPageExample", value = "{\n  \"content\": [\n    {\n      \"id\": 1,\n      \"version\": 0,\n      \"beerName\": \"Galaxy Cat IPA\",\n      \"beerStyle\": \"IPA\",\n      \"upc\": \"0123456789012\",\n      \"quantityOnHand\": 120,\n      \"price\": 12.99,\n      \"createdDate\": \"2025-08-01T12:34:56\",\n      \"updatedDate\": \"2025-08-15T09:00:00\"\n    }\n  ],\n  \"pageable\": {\n    \"pageNumber\": 0,\n    \"pageSize\": 10\n  },\n  \"totalElements\": 1,\n  \"totalPages\": 1,\n  \"number\": 0,\n  \"size\": 10\n}"))
             )
     })
-    ResponseEntity<Page<BeerResponseDto>> listBeers(
+    public ResponseEntity<Page<BeerResponseDto>> listBeers(
             @Parameter(description = "Optional filter by beer name", example = "Galaxy")
             @RequestParam(value = "beerName", required = false) String beerName,
-            @Parameter(description = "Pagination parameters (page, size) provided by Spring Data")
-            Pageable pageable
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable
     ) {
         // Sanitize user input to avoid XSS issues when echoed back in any UI and pass along. Service handles null/blank
         String safeBeerName = beerName != null ? HtmlUtils.htmlEscape(beerName) : null;
@@ -70,7 +71,7 @@ class BeerController {
             ),
             @ApiResponse(responseCode = "404", description = "Beer not found", content = @Content)
     })
-    ResponseEntity<BeerResponseDto> getBeerById(
+    public ResponseEntity<BeerResponseDto> getBeerById(
             @Parameter(description = "Unique identifier of the beer", example = "42")
             @PathVariable("beerId") Integer beerId) {
         return beerService.getBeerById(beerId)
@@ -146,6 +147,7 @@ class BeerController {
         String safeName = dto.beerName() != null ? HtmlUtils.htmlEscape(dto.beerName()) : null;
         String safeStyle = dto.beerStyle() != null ? HtmlUtils.htmlEscape(dto.beerStyle()) : null;
         String safeUpc = dto.upc() != null ? HtmlUtils.htmlEscape(dto.upc()) : null;
-        return new BeerRequestDto(safeName, safeStyle, safeUpc, dto.quantityOnHand(), dto.price());
+        String safeDescription = dto.description() != null ? HtmlUtils.htmlEscape(dto.description()) : null;
+        return new BeerRequestDto(safeName, safeStyle, safeUpc, dto.quantityOnHand(), dto.price(), safeDescription);
     }
 }
