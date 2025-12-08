@@ -18,6 +18,30 @@ The app exposes a small set of RESTful APIs for a beer catalog and customers. It
 - JUnit 5, Spring Test (MockMvc)
 - Redocly (OpenAPI lint/preview)
 
+## Frontend Technology Stack
+
+The project now includes a React-based frontend built using modern, production‑ready tooling.  
+These technologies will be used as part of the Vibe Coding workflow for building the UI:
+
+- **React** – Component-based UI library
+- **Vite** – Fast dev server & build tool for modern frontend applications
+- **Radix UI** – Accessible, unstyled UI primitives
+- **shadcn/ui** – Reusable, customizable components built on Radix
+- **Tailwind CSS** – Utility-first CSS framework used for styling shadcn/ui components
+
+All frontend source code will live under:  
+`src/main/frontend/`
+
+A Maven plugin will build the frontend and copy its bundled assets into  
+`src/main/resources/static`, which Spring Boot serves automatically.
+
+## Frontend Requirements
+
+Before running or building the UI, verify the following are installed:
+
+- **npm 11 or higher**
+- **Node.js 22 or higher**
+
 ## Prerequisites
 
 - JDK 21
