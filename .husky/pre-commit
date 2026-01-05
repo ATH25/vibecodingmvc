@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Husky pre-commit hook to validate frontend code before committing
+# Requires: npm and Node per src/main/frontend/.nvmrc
+
+echo "[husky] Running frontend lint and format..."
+
+# Lint TypeScript/React sources
+npm --prefix src/main/frontend run lint || exit 1
+
+# Auto-format tracked files to keep diffs clean
+npm --prefix src/main/frontend run format || exit 1
+
+echo "[husky] Frontend checks completed."

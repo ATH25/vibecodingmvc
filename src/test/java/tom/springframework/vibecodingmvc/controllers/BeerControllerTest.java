@@ -7,6 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -21,8 +25,7 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -55,6 +58,7 @@ class BeerControllerTest {
                 "123456",
                 123,
                 new BigDecimal("12.99"),
+                "Test description",
                 null,
                 null
         );
@@ -69,29 +73,53 @@ class BeerControllerTest {
                 "654321",
                 65,
                 new BigDecimal("11.99"),
+                "Another description",
                 null,
                 null
         );
         
         beers.add(testBeer2);
         
-        // Setup MockMvc
+        // Setup MockMvc with Pageable resolver
         mockMvc = MockMvcBuilders
                 .standaloneSetup(beerController)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
     }
 
     @Test
-    void testListBeers() throws Exception {
-        given(beerService.listBeers()).willReturn(beers);
+    void listBeers_returnsPaged_noFilter() throws Exception {
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        Page<BeerResponseDto> page = new PageImpl<>(beers, pageRequest, beers.size());
+        given(beerService.listBeers(isNull(), any())).willReturn(page);
 
         mockMvc.perform(get("/api/v1/beers")
-                .accept(MediaType.APPLICATION_JSON))
+                        .param("page", "0")
+                        .param("size", "2")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].beerName", is("Test Beer")));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].id", is(1)))
+                .andExpect(jsonPath("$.content[0].beerName", is("Test Beer")));
+    }
+
+    @Test
+    void listBeers_returnsPaged_withFilter() throws Exception {
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        List<BeerResponseDto> onlyFirst = List.of(beers.getFirst());
+        Page<BeerResponseDto> page = new PageImpl<>(onlyFirst, pageRequest, 1);
+        given(beerService.listBeers(eq("Test"), any())).willReturn(page);
+
+        mockMvc.perform(get("/api/v1/beers")
+                        .param("beerName", "Test")
+                        .param("page", "0")
+                        .param("size", "1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].beerName", is("Test Beer")));
     }
 
     @Test
@@ -122,7 +150,8 @@ class BeerControllerTest {
                 "Pale Ale",
                 "987654",
                 100,
-                new BigDecimal("10.99")
+                new BigDecimal("10.99"),
+                "A new beer"
         );
         
         BeerResponseDto savedBeer = new BeerResponseDto(
@@ -133,6 +162,7 @@ class BeerControllerTest {
                 "987654",
                 100,
                 new BigDecimal("10.99"),
+                "A new beer",
                 null,
                 null
         );
@@ -154,7 +184,8 @@ class BeerControllerTest {
                 "Stout",
                 "654321",
                 200,
-                new BigDecimal("14.99")
+                new BigDecimal("14.99"),
+                "Updated desc"
         );
         
         BeerResponseDto savedBeer = new BeerResponseDto(
@@ -165,6 +196,7 @@ class BeerControllerTest {
                 "654321",
                 200,
                 new BigDecimal("14.99"),
+                "Updated desc",
                 null,
                 null
         );
@@ -187,7 +219,8 @@ class BeerControllerTest {
                 "Stout",
                 "654321",
                 200,
-                new BigDecimal("14.99")
+                new BigDecimal("14.99"),
+                "Updated desc"
         );
 
         given(beerService.updateBeer(eq(999), any(BeerRequestDto.class))).willReturn(Optional.empty());

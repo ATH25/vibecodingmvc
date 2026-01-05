@@ -29,10 +29,30 @@ paths:
     $ref: paths/api_v1_beer-orders.yaml
   /api/v1/beer-orders/{id}:
     $ref: paths/api_v1_beer-orders_{id}.yaml
-  /api/v1/beerorder-shipments:
-    $ref: paths/api_v1_beerorder-shipments.yaml
-  /api/v1/beerorder-shipments/{id}:
-    $ref: paths/api_v1_beerorder-shipments_{id}.yaml
+  /api/v1/beerorders/{beerOrderId}/shipments:
+    parameters:
+      - name: beerOrderId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    $ref: paths/api_v1_beerorders_{beerOrderId}_shipments.yaml
+  /api/v1/beerorders/{beerOrderId}/shipments/{id}:
+    parameters:
+      - name: beerOrderId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    $ref: paths/api_v1_beerorders_{beerOrderId}_shipments_{id}.yaml
   /api/v1/customers:
     $ref: paths/api_v1_customers.yaml
   /api/v1/customers/{id}:

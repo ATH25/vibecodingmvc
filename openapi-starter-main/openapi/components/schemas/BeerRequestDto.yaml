@@ -25,3 +25,7 @@ properties:
     description: Price per unit (must be greater than 0)
     minimum: 0.01
     example: 12.99
+  description:
+    type: string
+    description: Optional human-readable description of the beer
+    example: A bright, citrus-forward IPA brewed with Galaxy hops

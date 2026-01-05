@@ -38,6 +38,9 @@ public class Beer {
     private Integer quantityOnHand;
     private BigDecimal price;
 
+    // Optional human-readable description of the beer
+    private String description;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdDate;

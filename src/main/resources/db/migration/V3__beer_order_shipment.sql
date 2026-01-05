@@ -17,3 +17,6 @@ CREATE TABLE IF NOT EXISTS beer_order_shipment (
 
 CREATE INDEX IF NOT EXISTS idx_bos_order ON beer_order_shipment(beer_order_id);
 CREATE INDEX IF NOT EXISTS idx_bos_status ON beer_order_shipment(shipment_status);
+
+ALTER TABLE beer_order_shipment
+    ADD COLUMN version INT DEFAULT 0 NOT NULL;

@@ -1,0 +1,49 @@
+parameters:
+  - in: path
+    name: beerOrderId
+    required: true
+    schema:
+      type: integer
+      format: int32
+      minimum: 1
+    description: Beer order identifier
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+      format: int32
+    description: Shipment identifier
+get:
+  tags: [Beer Order Shipments]
+  summary: Get a beer order shipment by id for a beer order
+  operationId: getBeerOrderShipment
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BeerOrderShipmentDto.yaml
+    '404': { description: Not Found }
+patch:
+  tags: [Beer Order Shipments]
+  summary: Update a beer order shipment
+  operationId: updateBeerOrderShipment
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/BeerOrderShipmentUpdateDto.yaml
+  responses:
+    '204': { description: No Content }
+    '400': { description: Bad Request }
+    '404': { description: Not Found }
+delete:
+  tags: [Beer Order Shipments]
+  summary: Delete a beer order shipment
+  operationId: deleteBeerOrderShipment
+  responses:
+    '204': { description: No Content }
+    '404': { description: Not Found }

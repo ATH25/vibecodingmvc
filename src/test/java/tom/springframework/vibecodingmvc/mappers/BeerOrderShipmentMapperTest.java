@@ -56,7 +56,7 @@ class BeerOrderShipmentMapperTest {
         LocalDateTime shipped = LocalDateTime.now();
         BeerOrderShipmentCreateDto createDto = new BeerOrderShipmentCreateDto(
                 101,
-                "PACKED",
+                ShipmentStatus.PACKED,
                 shipped,
                 "TRACK-123",
                 "FedEx",
