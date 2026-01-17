@@ -37,37 +37,43 @@ All frontend source code will live under:
 A Maven plugin will build the frontend and copy its bundled assets into  
 `src/main/resources/static`, which Spring Boot serves automatically.
 
-### Frontend developer workflow
+## Running the app
 
-- Use Node 22.16.0 via nvm: `nvm use` in project root (see `.nvmrc`).
-- Local setup and development from `src/main/frontend`:
+This application can be run in two primary ways depending on whether you are developing the frontend or validating the production setup.
+
+### Quick start (production-style)
+
+Use this mode to run the application exactly as it would behave in production, with Spring Boot serving the compiled React frontend.
 
 ```bash
 cd src/main/frontend
-
-# Install dependencies
-npm install
-
-# Start development server (Vite on port 5173 with /api proxy to Spring Boot)
-npm run dev
-
-# Run unit tests
-npm test
-
-# Lint code with ESLint
-npm run lint
-
-# Format code with Prettier
-npm run format
-
-# Generate TypeScript types from OpenAPI spec
-npm run api:generate
-
-# Build production assets (emits to src/main/resources/static)
 npm run build
+
+# from project root
+./mvnw spring-boot:run
 ```
 
-**Note:** The `npm run build` command emits frontend assets to `src/main/resources/static`, which are then served automatically by Spring Boot. This behavior is controlled by `vite.config.ts`.
+Open the application at:
+- http://localhost:8080
+
+### Development mode (recommended for UI work)
+
+Use this mode when actively developing the frontend. Vite provides hot module replacement (HMR) and fast feedback while proxying API calls to Spring Boot.
+
+```bash
+# terminal 1 (backend)
+./mvnw spring-boot:run
+
+# terminal 2 (frontend)
+cd src/main/frontend
+npm run dev
+```
+
+Open the application at:
+- Frontend (Vite dev server): http://localhost:5173
+- Backend API (Spring Boot): http://localhost:8080
+
+In development mode, frontend requests to `/api/*` are proxied by Vite to the Spring Boot backend, avoiding CORS issues.
 
 ### Running the application (Dev vs Production)
 

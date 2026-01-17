@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function Footer() {
   return (
     <footer className="w-full border-t py-4 text-sm text-muted-foreground">

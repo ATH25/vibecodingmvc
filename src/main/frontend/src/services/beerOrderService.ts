@@ -16,10 +16,25 @@ export type BeerOrderListParams = {
   customerId?: number;
 };
 
-export async function listBeerOrders(params?: BeerOrderListParams): Promise<BeerOrderResponse[]> {
-  return get<BeerOrderResponse[]>(
+export type BeerOrderPage = {
+  content: BeerOrderResponse[];
+  totalElements: number;
+  totalPages?: number;
+  size: number;
+  number: number;
+};
+
+export async function listBeerOrders(params?: BeerOrderListParams): Promise<BeerOrderPage> {
+  const query: Record<string, unknown> = {};
+  if (params?.status) query.status = params.status;
+  if (params?.customerId) query.customerId = params.customerId;
+  if (typeof params?.page === 'number') query.page = Math.max(0, params.page - 1); // backend is zero-based
+  if (typeof params?.size === 'number') query.size = params.size;
+  if (params?.sort) query.sort = params.sort;
+
+  return get<BeerOrderPage>(
     BEER_ORDERS_BASE_PATH,
-    { params },
+    { params: query },
     { retry: 1, retryDelayMs: 300 },
   );
 }

@@ -1,4 +1,5 @@
-import React from 'react';
+import { ShoppingBag } from 'lucide-react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import { ShipmentDialog } from './ShipmentDialog';
@@ -15,14 +16,14 @@ import {
 } from '../../components/ui/select';
 import useAsync from '../../hooks/useAsync';
 import useQueryParams from '../../hooks/useQueryParams';
-import { emitErrorToast } from '../../lib/errors';
+import { emitErrorToast, fromAxiosError } from '../../lib/errors';
 import { listBeerOrders } from '../../services/beerOrderService';
 
 type OrderRow = {
   id: number;
   customerName: string;
   status: 'PENDING' | 'PAID' | 'CANCELLED';
-  createdAt?: string;
+  createdDate?: string;
   total?: number;
 };
 
@@ -49,20 +50,22 @@ export function BeerOrderListPage() {
   const customer = params.customer ?? '';
   const from = params.from ?? '';
   const to = params.to ?? '';
-  const sortBy = params.sortBy ?? 'createdAt';
+  const sortBy = params.sortBy ?? 'createdDate';
   const sortDir = (params.sortDir as 'asc' | 'desc' | undefined) ?? 'desc';
 
-  // Load orders; backend returns an array, so we'll do client-side sort/pagination similar to customers list
+  // Load orders; backend returns a paged object, so we'll pass pagination and filters to the server
   const { data, loading, error, run } = useAsync(
     async () =>
       listBeerOrders({
-        // If backend supports it, pass status filter; other filters applied client-side
+        page,
+        size,
         status: (status === 'ALL' || status === '' ? undefined : status) as any,
+        sort: sortBy ? `${sortBy},${sortDir}` : undefined,
       }),
     {
       auto: true,
-      deps: [status],
-      onError: (err) => emitErrorToast({ source: 'BeerOrderListPage', error: err }),
+      deps: [page, size, status, sortBy, sortDir],
+      onError: (err) => emitErrorToast({ error: fromAxiosError(err) }),
     },
   );
 
@@ -71,7 +74,7 @@ export function BeerOrderListPage() {
       { key: 'id', header: 'Order #', sortable: true },
       { key: 'customerName', header: 'Customer', sortable: true },
       { key: 'status', header: 'Status', sortable: true },
-      { key: 'createdAt', header: 'Created', sortable: true },
+      { key: 'createdDate', header: 'Created', sortable: true },
       {
         key: 'total',
         header: 'Total',
@@ -115,7 +118,7 @@ export function BeerOrderListPage() {
         customer: '',
         from: '',
         to: '',
-        sortBy: 'createdAt',
+        sortBy: 'createdDate',
         sortDir: 'desc',
       },
       'replace',
@@ -127,50 +130,28 @@ export function BeerOrderListPage() {
 
   // Map API data to table rows and apply client-side filters
   const allRows = React.useMemo<OrderRow[]>(() => {
-    const rows = (data ?? []).map((o: any) => ({
+    const rows = (data?.content ?? []).map((o: any) => ({
       id: o.id as number,
       customerName: (o.customerRef as string) ?? '—',
       status: (o.status as any) ?? 'PENDING',
-      createdAt: o.createdDate as string | undefined,
+      createdDate: o.createdDate as string | undefined,
       total: (o.paymentAmount as number | undefined) ?? undefined,
     }));
-    // client-side filters for customer name and date range
+    // client-side filters for customer name and date range (if not supported by backend)
     const filteredByCustomer = customer
       ? rows.filter((r) => r.customerName.toLowerCase().includes(customer.toLowerCase()))
       : rows;
     const filteredByFrom = from
-      ? filteredByCustomer.filter((r) => (r.createdAt ?? '') >= from)
+      ? filteredByCustomer.filter((r) => (r.createdDate ?? '') >= from)
       : filteredByCustomer;
     const filteredByTo = to
-      ? filteredByFrom.filter((r) => (r.createdAt ?? '') <= to)
+      ? filteredByFrom.filter((r) => (r.createdDate ?? '') <= to)
       : filteredByFrom;
     return filteredByTo;
   }, [data, customer, from, to]);
 
-  const sortedRows = React.useMemo(() => {
-    if (!sortBy) return allRows;
-    const copy = [...allRows];
-    copy.sort((a: any, b: any) => {
-      const av = a[sortBy as keyof OrderRow];
-      const bv = b[sortBy as keyof OrderRow];
-      // Handle numbers and dates appropriately
-      if (sortBy === 'id' || sortBy === 'total') {
-        const an = Number(av ?? 0);
-        const bn = Number(bv ?? 0);
-        return sortDir === 'asc' ? an - bn : bn - an;
-      }
-      const astr = av == null ? '' : String(av).toLowerCase();
-      const bstr = bv == null ? '' : String(bv).toLowerCase();
-      if (astr < bstr) return sortDir === 'asc' ? -1 : 1;
-      if (astr > bstr) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return copy;
-  }, [allRows, sortBy, sortDir]);
-
-  const total = sortedRows.length;
-  const pageStart = (Math.max(1, page) - 1) * Math.max(1, size);
-  const pageRows = sortedRows.slice(pageStart, pageStart + Math.max(1, size));
+  const total = data?.totalElements ?? allRows.length;
+  const pageRows = allRows;
 
   return (
     <div>
@@ -245,6 +226,7 @@ export function BeerOrderListPage() {
           <EmptyState
             title="No orders yet"
             description="Use the Create button to add your first order."
+            icon={ShoppingBag}
           />
         }
         pagination={{ page, pageSize: size, total, onPageChange }}

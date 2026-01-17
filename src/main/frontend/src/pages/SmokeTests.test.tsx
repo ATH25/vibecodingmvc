@@ -16,7 +16,9 @@ jest.mock('../services/customerService', () => ({
   listCustomers: jest.fn(() => Promise.resolve([])),
 }));
 jest.mock('../services/beerOrderService', () => ({
-  listBeerOrders: jest.fn(() => Promise.resolve([])),
+  listBeerOrders: jest.fn(() =>
+    Promise.resolve({ content: [], totalElements: 0, totalPages: 0, size: 10, number: 0 }),
+  ),
 }));
 
 // Mock custom hooks that might use context or complex logic

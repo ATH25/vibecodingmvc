@@ -1,16 +1,17 @@
-import * as React from 'react';
+import { useMemo, type ReactNode } from 'react';
 
 import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { cn } from '../../lib/utils';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 
 export type SortDirection = 'asc' | 'desc' | null;
 
 export type ColumnDef<T> = {
   key: keyof T | string;
-  header: React.ReactNode | string;
+  header: ReactNode | string;
   className?: string;
-  cell?: (row: T) => React.ReactNode;
+  cell?: (row: T) => ReactNode;
   sortable?: boolean;
 };
 
@@ -38,7 +39,7 @@ export interface DataTableProps<T> extends SortingProps, SelectionProps<T> {
   columns: Array<ColumnDef<T>>;
   className?: string;
   loading?: boolean;
-  emptyState?: React.ReactNode;
+  emptyState?: ReactNode;
   pagination?: PaginationProps;
 }
 
@@ -56,7 +57,7 @@ export function DataTable<T>({
   selectedIds,
   onSelectionChange,
 }: DataTableProps<T>) {
-  const allIds = React.useMemo(() => data.map((r) => getRowId(r)), [data, getRowId]);
+  const allIds = useMemo(() => data.map((r) => getRowId(r)), [data, getRowId]);
   const allSelected = !!selectedIds?.length && allIds.every((id) => selectedIds!.includes(id));
   const someSelected = !!selectedIds?.length && !allSelected;
 
@@ -125,16 +126,15 @@ export function DataTable<T>({
         <tbody>
           {loading ? (
             <tr>
-              <td
-                className="p-6 text-center text-muted-foreground"
-                colSpan={columns.length + (onSelectionChange ? 1 : 0)}
-              >
-                Loading...
+              <td colSpan={columns.length + (onSelectionChange ? 1 : 0)} className="p-0">
+                <LoadingSpinner />
               </td>
             </tr>
           ) : data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length + (onSelectionChange ? 1 : 0)}>{emptyState}</td>
+              <td colSpan={columns.length + (onSelectionChange ? 1 : 0)} className="p-0">
+                {emptyState}
+              </td>
             </tr>
           ) : (
             data.map((row, idx) => {

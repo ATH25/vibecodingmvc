@@ -1,14 +1,13 @@
-import React from 'react';
-
 export function LoadingSpinner({ label = 'Loading...' }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center py-12">
+    <div className="flex items-center justify-center py-12" role="status">
       <div className="flex items-center gap-3 text-muted-foreground">
         <svg
           className="size-5 animate-spin text-primary"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <circle
             className="opacity-25"

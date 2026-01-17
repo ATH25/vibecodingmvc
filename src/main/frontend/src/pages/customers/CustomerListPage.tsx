@@ -1,4 +1,5 @@
-import React from 'react';
+import { Users } from 'lucide-react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import { EmptyState } from '../../components/common/EmptyState';
@@ -41,7 +42,7 @@ export function CustomerListPage() {
     {
       auto: true,
       deps: [name],
-      onError: (err) => emitErrorToast({ source: 'CustomerListPage', error: err }),
+      onError: (err) => emitErrorToast({ error: fromAxiosError(err) }),
     },
   );
 
@@ -206,6 +207,7 @@ export function CustomerListPage() {
           <EmptyState
             title="No customers yet"
             description="Use the Create button to add your first customer."
+            icon={Users}
           />
         }
         pagination={{ page, pageSize: size, total, onPageChange }}

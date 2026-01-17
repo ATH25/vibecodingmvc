@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useTheme } from '../theme/ThemeProvider';
 
 export function Navbar() {

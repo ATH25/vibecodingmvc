@@ -11,6 +11,3 @@ function resolveApiBaseUrl(): string {
 export const config: AppConfig = {
   apiBaseUrl: resolveApiBaseUrl(),
 };
-
-
-
