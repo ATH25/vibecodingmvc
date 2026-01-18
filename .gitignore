@@ -32,3 +32,23 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Frontend
+node_modules/
+dist/
+.next/
+.env
+.nvmrc
+*.log
+build/
+coverage/
+.cache/
+
+src/main/frontend/node/
+
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+

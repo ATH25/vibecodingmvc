@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="8" failures="0" errors="0" time="0.923">
+  <testsuite name="Smoke Tests" errors="0" failures="0" skipped="0" timestamp="2026-01-17T22:57:26" time="0.386" tests="3">
+    <testcase classname="Smoke Tests renders BeerListPage without crashing" name="Smoke Tests renders BeerListPage without crashing" time="0.071">
+    </testcase>
+    <testcase classname="Smoke Tests renders CustomerListPage without crashing" name="Smoke Tests renders CustomerListPage without crashing" time="0.009">
+    </testcase>
+    <testcase classname="Smoke Tests renders BeerOrderListPage without crashing" name="Smoke Tests renders BeerOrderListPage without crashing" time="0.017">
+    </testcase>
+  </testsuite>
+  <testsuite name="BeerForm" errors="0" failures="0" skipped="0" timestamp="2026-01-17T22:57:26" time="0.113" tests="3">
+    <testcase classname="BeerForm renders correctly" name="BeerForm renders correctly" time="0.025">
+    </testcase>
+    <testcase classname="BeerForm validates required fields" name="BeerForm validates required fields" time="0.036">
+    </testcase>
+    <testcase classname="BeerForm submits form with valid values" name="BeerForm submits form with valid values" time="0.017">
+    </testcase>
+  </testsuite>
+  <testsuite name="OrderForm" errors="0" failures="0" skipped="0" timestamp="2026-01-17T22:57:26" time="0.077" tests="2">
+    <testcase classname="OrderForm renders correctly" name="OrderForm renders correctly" time="0.019">
+    </testcase>
+    <testcase classname="OrderForm submits form with correct values" name="OrderForm submits form with correct values" time="0.018">
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,11 +1,16 @@
 package tom.springframework.vibecodingmvc.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import tom.springframework.vibecodingmvc.models.BeerOrderResponse;
+import tom.springframework.vibecodingmvc.models.BeerOrderSummaryResponse;
 import tom.springframework.vibecodingmvc.models.CreateBeerOrderCommand;
 import tom.springframework.vibecodingmvc.services.BeerOrderService;
 
@@ -31,6 +36,32 @@ class BeerOrderController {
 
     BeerOrderController(BeerOrderService beerOrderService) {
         this.beerOrderService = beerOrderService;
+    }
+
+    @GetMapping(produces = "application/json")
+    @Operation(
+            summary = "List beer orders",
+            description = "Returns a paged list of beer orders."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Page.class),
+                            examples = @ExampleObject(name = "paged",
+                                    value = "{\n  \"content\": [\n    {\n      \"id\": 42,\n      \"customerRef\": \"PO-2025-0001\",\n      \"paymentAmount\": 24.99,\n      \"status\": \"PENDING\",\n      \"createdDate\": \"2025-08-20T14:13:00Z\"\n    }\n  ],\n  \"pageable\": {\n    \"pageNumber\": 0,\n    \"pageSize\": 10\n  },\n  \"totalElements\": 1,\n  \"totalPages\": 1,\n  \"number\": 0,\n  \"size\": 10\n}"))
+            )
+    })
+    public ResponseEntity<Page<BeerOrderSummaryResponse>> list(
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(beerOrderService.listOrders(pageable));
+    }
+
+    @GetMapping(value = "/list", produces = "application/json")
+    @Operation(summary = "Alias for list beer orders", description = "Same as GET /api/v1/beer-orders")
+    @ApiResponse(responseCode = "200", description = "OK")
+    public ResponseEntity<Page<BeerOrderSummaryResponse>> listAlias(
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+        return list(pageable);
     }
 
     @PostMapping(consumes = "application/json", produces = "application/json")

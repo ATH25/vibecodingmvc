@@ -7,6 +7,7 @@ import tom.springframework.vibecodingmvc.entities.BeerOrder;
 import tom.springframework.vibecodingmvc.entities.BeerOrderLine;
 import tom.springframework.vibecodingmvc.models.BeerOrderLineResponse;
 import tom.springframework.vibecodingmvc.models.BeerOrderResponse;
+import tom.springframework.vibecodingmvc.models.BeerOrderSummaryResponse;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public interface BeerOrderMapper {
 
     @Mapping(target = "lines", source = "lines")
     BeerOrderResponse toResponse(BeerOrder order);
+
+    BeerOrderSummaryResponse toSummaryResponse(BeerOrder order);
 
     @Mapping(target = "beerId", source = "beer.id")
     @Mapping(target = "beerName", source = "beer.beerName")

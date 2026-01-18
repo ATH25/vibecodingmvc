@@ -320,3 +320,44 @@ Validate/test the OpenAPI definition
 - Paths live in openapi-starter-main/openapi/paths/*.yaml. File name mirrors URL by replacing '/' with '_' and keeping parameters in braces, e.g. /api/v1/beers/{beerId} -> paths/api_v1_beers_{beerId}.yaml
 - Schemas live in openapi-starter-main/openapi/components/schemas/*.yaml, one schema per file, e.g. components/schemas/BeerResponseDto.yaml
 - Validate/lint: in openapi-starter-main run npm install once, then npm test (runs Redocly lint). Optional: npm start to preview docs.
+
+
+### Frontend Project Structure
+The frontend application is a modern React project located in `src/main/frontend`. It follows a structured approach to separate concerns:
+
+- `src/main/frontend/src/pages`: Route-level components (screens).
+- `src/main/frontend/src/components`: Reusable UI components.
+  - `ui/`: Base primitives from `shadcn/ui` and `Radix UI`.
+  - `layout/`: App-wide layout components like `AppLayout` and `NavBar`.
+  - `common/`: Shared presentational components (e.g., `EmptyState`).
+- `src/main/frontend/src/services`: API client modules using Axios, organized by domain (Beer, Customer, Order).
+- `src/main/frontend/src/hooks`: Custom React hooks for stateful logic and data fetching (e.g., `useBeers`, `useAsync`).
+- `src/main/frontend/src/types/generated`: TypeScript models generated from the OpenAPI specification.
+- `src/main/frontend/src/routes`: Routing configuration using `React Router`.
+
+### Building and Testing the Frontend
+The project uses `Vite` for development and `Maven` for production builds, ensuring a single JAR deployment.
+
+#### Development Commands
+Run these from the `src/main/frontend` directory:
+- `npm install`: Install dependencies.
+- `npm run dev`: Start the Vite development server (proxies `/api` to `localhost:8080`).
+- `npm run generate-api-types`: Update TypeScript models from the OpenAPI spec.
+- `npm test`: Run the frontend test suite (Jest + React Testing Library).
+- `npm run format`: Format code using Prettier.
+
+#### Production Build
+- `mvn clean package`: The `frontend-maven-plugin` automatically handles Node/NPM installation, dependency resolution, and building the production assets.
+- Production assets are emitted to `src/main/resources/static` and bundled into the Spring Boot JAR.
+
+### Frontend Best Practices
+The following patterns and practices are established in the codebase:
+
+1.  **Type-Safe API Interaction:** Use generated models from the OpenAPI spec to ensure consistency between the backend and frontend.
+2.  **Centralized HTTP Client:** All requests go through a shared Axios instance (`httpClient.ts`) with interceptors for global error handling and request normalization.
+3.  **Encapsulated Logic in Hooks:** Keep components clean by moving data fetching, pagination, and complex state logic into custom hooks.
+4.  **Component Primity:** Leverage `shadcn/ui` and `Radix UI` for accessible and composable UI building blocks.
+5.  **Utility-First Styling:** Use `Tailwind CSS` with `tailwind-merge` and `clsx` for managing dynamic class names and variant-based styling.
+6.  **Separation of Persistence:** The frontend must never call repositories directly; it interacts solely with the REST API layer.
+7.  **Environment Configuration:** Use `VITE_API_BASE_URL` and `.env` files to manage API endpoints across different environments.
+
